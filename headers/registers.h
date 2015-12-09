@@ -1,0 +1,9 @@
+#ifndef REGISTERS_H
+#define REGISTERS_H
+
+#define REG_DISPCNT 0x4000000
+#define REG_VCOUNT  0x4000006
+
+#define REG_KEYINPUT 0x4000130
+
+#endif

@@ -1,1 +1,1 @@
-<Project name="ascent"><Folder name="source"><File path="source\main.cpp"></File></Folder><Folder name="headers"><File path="headers\test.h"></File></Folder><File path="Makefile"></File></Project>
+<Project name="ascent"><Folder name="source"><File path="source\util.c"></File><File path="source\main.c"></File></Folder><Folder name="headers"><File path="headers\util.h"></File><File path="headers\registers.h"></File><File path="headers\constants.h"></File></Folder><File path="Makefile"></File></Project>

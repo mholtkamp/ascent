@@ -2,20 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <test.h>
+#include "util.h"
+#include "registers.h"
+#include "constants.h"
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
-#define REG_VCOUNT *(volatile unsigned short*)0x04000006
-#define REG_KEYS *(volatile unsigned short*)0x04000130
-#define K_A			0x0001
-#define K_B			0x0002
-#define K_SELECT	0x0004
-#define K_START		0x0008
-#define K_RIGHT		0x0010
-#define K_LEFT		0x0020
-#define K_UP		0x0040
-#define K_DOWN		0x0080
+
 #define NUM_PIPES	3
 #define GAP_SIZE	50
 #define PIPE_SPACING 70
@@ -202,7 +195,7 @@ const unsigned short pipechunkPal[16] __attribute__((aligned(4)))=
 
 
 u16* dcr;
-bool prevDown;
+int prevDown;
 typedef struct
 {
 	u16 color;
@@ -223,15 +216,7 @@ typedef struct
 	int y;
 	int xVel;
 } Pipe;
-void vertSync()
-{
-	while(REG_VCOUNT >= 160);   // wait till VDraw
-    while(REG_VCOUNT < 160);    // wait till VBlank
-}
-bool keyDown(u16 key)
-{
-	return (~REG_KEYS) & key;
-}
+
 void flipPages(u16* dcr)
 {
 	/*u16 cr = *dcr;
@@ -250,7 +235,6 @@ void setY(float y)
 }
 int main()
 {
-	int i;
 	srand(time(NULL));
 	Box bird;
 	bird.x = 20;
@@ -262,7 +246,8 @@ int main()
 	//Background Memory Load
 
 	// Load palette
-	memcpy((unsigned short*)0x05000000, bgPal, 512);
+	// memcpy((unsigned short*)0x05000000, bgPal, 512);
+    load_palette(PALETTE_TYPE_BG, bgPal);
 	// Load tiles into char block 0
 	memcpy((unsigned short*)0x06000000, bgTiles, 896);
 	// Load map into screen block 31
@@ -274,7 +259,8 @@ int main()
 	//Sprite Memory Load
 	
 	//Load bird sprite palette
-    memcpy((void*)0x05000200, birdPal, 512);
+    //memcpy((void*)0x05000200, birdPal, 512);
+    load_palette(PALETTE_TYPE_OBJ, birdPal);
 	//Load bird sprite tiles
 	memcpy((void*)0x06010020, birdBitmap, 256);
 	
@@ -287,17 +273,29 @@ int main()
 	
 	//Set up video registers. Video Mode 0, BG0 only.
 	*((unsigned short*) 0x04000008)= 0x1f00;
-	*((unsigned short*) 0x04000000)= 0x1140;
+	//*((unsigned short*) 0x04000000)= 0x1140;
+    
+    initialize_display(0, // Video mode 0
+                       0, // No frame selection needed
+                       0, // HBlankFree disabled
+                       1, // 1 dimensional sprite mapping
+                       0, // No forced blank
+                       1, // BG0 Enabled
+                       0, // BG1 Disabled
+                       0, // BG2 Disabled
+                       0, // BG3 Disabled
+                       1);// OBJ (sprites) enabled
+    
 	// Scroll around some
 	float x= 0;
 	int y= 0;
 	float GRAVITY = 0.1f;
 	float yVel = 0.0f;
-	bool keyPressed = false;
+	int keyPressed = 0;
 	
 	while(1)
 	{
-		vertSync();
+		sync_with_vblank();
 	
 		//Scroll viewport
 		x += 0.5;
@@ -305,18 +303,18 @@ int main()
 		
 		
 		
-		if(keyDown(K_A) && !keyPressed)
+		if(key_down(KEY_A) && !keyPressed)
 		{
 			yVel = -2.2f;
-			keyPressed = true;
+			keyPressed = 1;
 		}
 		else
 		{
 			yVel += GRAVITY;
 		}
-		if(!keyDown(K_A))
+		if(!key_down(KEY_A))
 		{
-			keyPressed = false;
+			keyPressed = 0;
 		}
 		
 		bird.y += yVel;
