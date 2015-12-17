@@ -109,6 +109,15 @@ void sprite_flip(int nIndex,
 //## **************************************************************************
 void sprite_enable(int nIndex,
                    int nEnable);
+                   
+//## **************************************************************************
+//## sprite_set_palette
+//##
+//## Sets the sprite's palette bank. The nPalette parameter chooses the 
+//## 16-color palette bank to use. nPalette should be in range 0-15.
+//## **************************************************************************
+void sprite_set_palette(int nIndex,
+                        int nPalette);
 
 
 #endif

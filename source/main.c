@@ -115,8 +115,8 @@ const unsigned short birdPal[256] __attribute__((aligned(4)))=
 {
 	0x0000,0x7FFF,0x0C75,0x0377,0x5525,0x2537,0x3197,0x55AA,
 	0x14B5,0x0842,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
-	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
-	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
+	0x0000,0x7F2F,0x75B3,0x2AA5,0x0189,0x0DB4,0x033F,0x0F2F,
+	0x00FF,0x002F,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
@@ -187,11 +187,11 @@ const unsigned short pipechunkBitmap[128] __attribute__((aligned(4)))=
 	0xAAAA,0xAAAA,0xAAAA,0xAAAA,0xAAAA,0xAAAA,0xAAAA,0xAAAA,
 };
 
-const unsigned short pipechunkPal[16] __attribute__((aligned(4)))=
-{
-	0x0000,0x0010,0x0200,0x0210,0x4000,0x4010,0x4200,0x6318,
-	0x4210,0x001F,0x0240,0x03FF,0x7C00,0x7C1F,0x7FE0,0x7FFF
-};
+//const unsigned short pipechunkPal[16] __attribute__((aligned(4)))=
+//{
+//	0x0000,0x0010,0x0200,0x0210,0x4000,0x4010,0x4200,0x6318,
+//	0x4210,0x001F,0x0240,0x03FF,0x7C00,0x7C1F,0x7FE0,0x7FFF
+//};
 
 
 u16* dcr;
@@ -223,12 +223,13 @@ void flipPages(u16* dcr)
 	cr = cr ^ 0x0010;
 	*dcr = cr;*/
 }
-void initBirdObj()
-{
-	*((unsigned short*) 0x07000000) = 0x001f;
-	*((unsigned short*) 0x07000002) = 0x403f;
-	*((unsigned short*) 0x07000004) = 0x0020;
-}
+
+//void initBirdObj()
+//{
+//	*((unsigned short*) 0x07000000) = 0x001f;
+//	*((unsigned short*) 0x07000002) = 0x403f;
+//	*((unsigned short*) 0x07000004) = 0x0020;
+//}
 void setY(float y)
 {
 	*((unsigned short*) 0x07000000) = 0x00FF & ((unsigned short) y);
@@ -238,10 +239,16 @@ int main()
 	srand(time(NULL));
 	Box bird;
 	bird.x = 20;
-	bird.y = -30;
+	bird.y = 30;
 	bird.width = 16;
 	bird.height = 16;
 	
+    
+    Box bird2;
+    bird2.x = 130;
+    bird2.y = 50;
+    bird2.width = 16;
+    bird2.height = 16;
 	
 	//Background Memory Load
 
@@ -264,17 +271,11 @@ int main()
 	//Load bird sprite tiles
 	memcpy((void*)0x06010020, birdBitmap, 256);
 	
-	//Load pipe chunk sprite palette
-	memcpy((void*)0x05000220, pipechunkPal, 32);
+	////Load pipe chunk sprite palette
+	//memcpy((void*)0x05000220, pipechunkPal, 32);
 	//Load pipe chunk sprite tiles
-	memcpy((void*)0x06010000 + 1*0x800, pipechunkBitmap, 256);
+	//memcpy((void*)0x06010000 + 1*0x800, pipechunkBitmap, 256);
 	
-	initBirdObj();
-	
-	//Set up video registers. Video Mode 0, BG0 only.
-	*((unsigned short*) 0x04000008)= 0x1f00;
-	//*((unsigned short*) 0x04000000)= 0x1140;
-    
     initialize_display(0, // Video mode 0
                        0, // No frame selection needed
                        0, // HBlankFree disabled
@@ -286,12 +287,47 @@ int main()
                        0, // BG3 Disabled
                        1);// OBJ (sprites) enabled
     
+	//initBirdObj();
+    sprite_initialize(0,    //sprite index
+                      0,    // OBJ mode = normal
+                      0,    // mosaic = false
+                      0,    // palette style = 16/16
+                      0,    // shape = square (0)
+                      1,    // size = 1 (16x16 in this case)
+                      0,    // hori flip = false
+                      0,    // vert flip = false
+                      bird.x, // bird x-value
+                      bird.y, // bird y-value
+                      1,     // tile 1
+                      0,     // priority = 0
+                      0);    // palette bank 0
+                      
+    sprite_initialize(1,    //sprite index
+                      0,    // OBJ mode = normal
+                      0,    // mosaic = false
+                      0,    // palette style = 16/16
+                      0,    // shape = square (0)
+                      1,    // size = 1 (16x16 in this case)
+                      0,    // hori flip = false
+                      0,    // vert flip = false
+                      bird2.x, // bird x-value
+                      bird2.y, // bird y-value
+                      1,     // tile 1
+                      0,     // priority = 0
+                      1);    // palette bank 1
+	
+	//Set up video registers. Video Mode 0, BG0 only.
+	*((unsigned short*) 0x04000008)= 0x1f00;
+	//*((unsigned short*) 0x04000000)= 0x1140;
+   
 	// Scroll around some
 	float x= 0;
 	int y= 0;
 	float GRAVITY = 0.1f;
 	float yVel = 0.0f;
+    float yVel2 = 0.0f;
 	int keyPressed = 0;
+    int keyPressed2 = 0;
 	
 	while(1)
 	{
@@ -303,6 +339,7 @@ int main()
 		
 		
 		
+        // Bird 1
 		if(key_down(KEY_A) && !keyPressed)
 		{
 			yVel = -2.2f;
@@ -316,18 +353,55 @@ int main()
 		{
 			keyPressed = 0;
 		}
-		
-		bird.y += yVel;
+        
+        bird.y += yVel;
 		if(bird.y > 160 - bird.height)
 			bird.y = 160 - bird.height;
-		setY(bird.y);
+		sprite_set_position(0, bird.x, bird.y);
 		
-			
 		y += 1;
 		if( y%20 < 10)
-				*((unsigned short*) 0x07000004) = 0x0005;
+        {
+            sprite_set_tile(0, 5);
+            sprite_flip(0, 1, 0);
+            sprite_set_palette(0, 1);
+        }
 		else
-				*((unsigned short*) 0x07000004) = 0x0001;
+        {
+			sprite_set_tile(0, 1);
+            sprite_flip(0, 0, 0);
+            sprite_set_palette(0, 0);
+        }
+        
+        if (key_down(KEY_B))
+        {
+            sprite_enable(0, 0);
+        }
+        else
+        {
+            sprite_enable(0, 1);
+        }
+        
+        // Bird 2
+        if(key_down(KEY_L) && !keyPressed2)
+		{
+			yVel2 = -2.2f;
+			keyPressed2 = 1;
+		}
+		else
+		{
+			yVel2 += GRAVITY;
+		}
+		if(!key_down(KEY_L))
+		{
+			keyPressed2 = 0;
+		}
+		
+        bird2.y += yVel2;
+		if(bird2.y > 160 - bird2.height)
+			bird2.y = 160 - bird2.height;
+		sprite_set_position(1, bird2.x, bird2.y);
+
 	}
 	return 0;
 }

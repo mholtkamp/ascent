@@ -137,5 +137,68 @@ void sprite_set_position(int nIndex,
     // Update second register (X value)
     usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB1_OFFSET)) & 0xfe00;
     usRegVal |= (0x01ff & nX);
-    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB1_OFFSET)) = nX;
+    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB1_OFFSET)) = usRegVal;
+}
+
+//*****************************************************************************
+// sprite_set_tile
+//*****************************************************************************
+void sprite_set_tile(int nIndex,
+                     int nTile)
+ {
+    unsigned short usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB2_OFFSET)) & 0xfe00;
+    usRegVal |= (0x01ff & nTile);
+    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB2_OFFSET)) = usRegVal;   
+ }
+ 
+//*****************************************************************************
+// sprite_set_dimensions
+//*****************************************************************************
+ void sprite_set_dimensions(int nIndex,
+                           int nSize,
+                           int nShape)
+{
+    // Set size in OAM attrib 0
+    unsigned short usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB0_OFFSET)) & 0x3fff;
+    usRegVal |= (0x3fff & (nShape << 14));
+    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB0_OFFSET)) = usRegVal;
+    
+    usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB1_OFFSET)) & 0x3fff;
+    usRegVal |= (0x3fff & (nSize << 14));
+    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB1_OFFSET)) = usRegVal;
+}
+
+//*****************************************************************************
+// sprite_flip
+//*****************************************************************************
+void sprite_flip(int nIndex,
+                 int nHorizontalFlip,
+                 int nVerticalFlip)
+{
+    unsigned short usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB1_OFFSET)) & 0xcfff;
+    usRegVal |= (0x1000 & (nHorizontalFlip << 12)) | (0x2000 & (nVerticalFlip << 13));
+    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB1_OFFSET)) = usRegVal;
+}
+
+//*****************************************************************************
+// sprite_enable
+//*****************************************************************************
+void sprite_enable(int nIndex,
+                   int nEnable)
+{
+    // The value of the enable is NOT'd because 0 = enabled on OBJ attrib register.
+    unsigned short usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB0_OFFSET)) & 0xfdff;
+    usRegVal |= 0x0200 & (~nEnable << 9);
+    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB0_OFFSET)) = usRegVal;
+}
+
+//*****************************************************************************
+// sprite_set_palette
+//*****************************************************************************
+void sprite_set_palette(int nIndex,
+                        int nPalette)
+{
+    unsigned short usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB2_OFFSET)) & 0x0fff;
+    usRegVal |= 0xF000 & (nPalette << 12);
+    *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB2_OFFSET)) = usRegVal;
 }

@@ -10,6 +10,8 @@
 #define KEY_LEFT		0x0020
 #define KEY_UP		    0x0040
 #define KEY_DOWN		0x0080
+#define KEY_R           0x0100
+#define KEY_L           0x0200
 
 // Palette constants
 #define ADDR_PALETTE_BG  0x05000000
