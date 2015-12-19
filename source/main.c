@@ -316,8 +316,17 @@ int main()
                       0,     // priority = 0
                       1);    // palette bank 1
 	
-	//Set up video registers. Video Mode 0, BG0 only.
-	*((unsigned short*) 0x04000008)= 0x1f00;
+	//Set up background control register
+    initialize_background(0,  // BG 0 
+                          0,
+                          0,
+                          0,
+                          0,
+                          31, // last screen block in VRAM (okay because size is 256x256).
+                          0,
+                          0);
+    
+	//*((unsigned short*) 0x04000008)= 0x1f00;
 	//*((unsigned short*) 0x04000000)= 0x1140;
    
 	// Scroll around some

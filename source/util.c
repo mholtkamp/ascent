@@ -74,6 +74,27 @@ void load_palette(int                   nPaletteType,
 }
 
 //*****************************************************************************
+// load_palette_bank
+//*****************************************************************************
+void load_palette_bank(int                   nPaletteType,
+                       int                   nPaletteBank,
+                       const unsigned short* pData)
+{
+    if (nPaletteType == PALETTE_TYPE_BG)
+    {
+        memcpy((unsigned short*) (ADDR_PALETTE_BG + nPaletteBank*PALETTE_BANK_SIZE_BYTES),
+                pData,
+                PALETTE_BANK_SIZE * sizeof(unsigned short));
+    }
+    else
+    {
+        memcpy((unsigned short*) (ADDR_PALETTE_OBJ + nPaletteBank*PALETTE_BANK_SIZE_BYTES),
+                pData,
+                PALETTE_BANK_SIZE * sizeof(unsigned short));
+    }
+}    
+
+//*****************************************************************************
 // sprite_initialize
 //*****************************************************************************
 void sprite_initialize(int nIndex,
@@ -201,4 +222,50 @@ void sprite_set_palette(int nIndex,
     unsigned short usRegVal = *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB2_OFFSET)) & 0x0fff;
     usRegVal |= 0xF000 & (nPalette << 12);
     *((unsigned short*) (ADDR_OAM + nIndex * OAM_OBJ_SIZE + OAM_ATTRIB2_OFFSET)) = usRegVal;
+}
+
+//*****************************************************************************
+// initialize_background
+//*****************************************************************************
+void initialize_background(int nBG,
+                           int nPriority,
+                           int nCharBaseBlock,
+                           int nMosaic,
+                           int nPaletteType,
+                           int nScreenBaseBlock,
+                           int nWrap,
+                           int nScreenSize)
+{
+    unsigned short  usRegVal = 0;
+    unsigned short* pBGReg   = 0;
+    
+    // Find the correct register to change
+    switch (nBG)
+    {
+    case BG_0:
+        pBGReg = (unsigned short*) BG0CNT;
+        break;
+    case BG_1:
+        pBGReg = (unsigned short*) BG1CNT;
+        break;
+    case BG_2:
+        pBGReg = (unsigned short*) BG2CNT;
+        break;
+    case BG_3:
+        pBGReg = (unsigned short*) BG3CNT;
+        break;
+    default:
+        // Unknown BG index was supplied...
+        return;
+    }
+    
+    usRegVal |= nPriority;
+    usRegVal |= nCharBaseBlock << 2;
+    usRegVal |= nMosaic << 6;
+    usRegVal |= nPaletteType << 7;
+    usRegVal |= nScreenBaseBlock << 8;
+    usRegVal |= nWrap << 13;
+    usRegVal |= nScreenSize << 14;
+    
+    *pBGReg = usRegVal;
 }

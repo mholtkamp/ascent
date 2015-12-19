@@ -3,7 +3,13 @@
 
 #define REG_DISPCNT 0x4000000
 #define REG_VCOUNT  0x4000006
+#define BG0CNT 0x4000008
+#define BG1CNT 0x400000A
+#define BG2CNT 0x400000C
+#define BG3CNT 0x400000E
 
 #define REG_KEYINPUT 0x4000130
+
+
 
 #endif

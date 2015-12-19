@@ -35,7 +35,7 @@ int key_down(unsigned short usKey);
 //## **************************************************************************
 //## load_palette
 //##
-//## Loads a palette into video RAM.
+//## Loads a full palette into video RAM.
 //##
 //## nPaletteType should be 0 for the tile palette and 1 for OBJ palette.
 //## (see PALETTE_TYPE_BG and PALETTE_TYPE_OBJ in constants.h)
@@ -46,6 +46,22 @@ int key_down(unsigned short usKey);
 //## **************************************************************************    
 void load_palette(int                   nPaletteType,
                   const unsigned short* pData);
+                  
+//## **************************************************************************
+//## load_palette_bank
+//##
+//## Loads a 16-color palette bank into video RAM.
+//##
+//## nPaletteType should be 0 for the tile palette and 1 for OBJ palette.
+//## (see PALETTE_TYPE_BG and PALETTE_TYPE_OBJ in constants.h)
+//##
+//## pData should point to the palette data array that will be loaded into
+//## video memory. Each color should be 2 bytes in form X1R5G5B5 and there 
+//## should be 16 colors (so 32 bytes of memory).
+//## **************************************************************************    
+void load_palette_bank(int                   nPaletteType,
+                       int                   nPaletteBank,
+                       const unsigned short* pData);               
 
 //## **************************************************************************
 //## sprite_initialize
@@ -119,5 +135,28 @@ void sprite_enable(int nIndex,
 void sprite_set_palette(int nIndex,
                         int nPalette);
 
+//## **************************************************************************
+//## initialize_background
+//##
+//## Initializes a background. Before calling this, the background should first
+//## be enabled in intialize_display.
+//##
+//## nBG: background index (0-3)
+//## nPriority: 0-3 (3 is highest)
+//## nCharBaseBlock: 0-3 (units of 16KB). Offset from start of VRAM for tiles
+//## nMosaic: 0 = disabled, 1 = enabled
+//## nPaletteType: 0 = 16/16, 1 = 256/1
+//## nScreenBaseBlock: 0 - 31 in units of 2KB. Where to look in vid mem for map
+//## nWrap: 0 = transparent overflow. 1 = wrap overflow (only works on BG2/3)
+//## nScreenSize: 0 = 256x256,  1 = 512x256, 2 = 256x512, 3 = 512x512
+//## **************************************************************************
+void initialize_background(int nBG,
+                           int nPriority,
+                           int nCharBaseBlock,
+                           int nMosaic,
+                           int nPaletteType,
+                           int nScreenBaseBlock,
+                           int nWrap,
+                           int nScreenSize);
 
 #endif

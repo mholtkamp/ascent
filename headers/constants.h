@@ -21,6 +21,9 @@
 #define PALETTE_TYPE_OBJ  1
 
 #define FULL_PALETTE_SIZE 256
+#define PALETTE_BANK_SIZE 16
+#define FULL_PALETTE_SIZE_BYTES 512
+#define PALETTE_BANK_SIZE_BYTES 32
 
 // OBJ sprites constants
 #define ADDR_OAM     0x07000000
@@ -29,5 +32,10 @@
 #define OAM_ATTRIB1_OFFSET 2
 #define OAM_ATTRIB2_OFFSET 4
 
+// BG constants
+#define BG_0 0
+#define BG_1 1
+#define BG_2 2
+#define BG_3 3
 
 #endif
