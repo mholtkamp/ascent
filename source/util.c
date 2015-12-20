@@ -225,6 +225,28 @@ void sprite_set_palette(int nIndex,
 }
 
 //*****************************************************************************
+// clear_all_sprites
+//*****************************************************************************
+void clear_all_sprites()
+{
+    // Doing this the slow way, but this will really only be called once
+    // at the beginning of a program/level to disable all sprites that 
+    // aren't being used.
+    int i = 0;
+    unsigned short* pSpriteReg = 0;
+    
+    for (i = 0; i < MAX_SPRITES; i++)
+    {
+        pSpriteReg = (unsigned short*) (ADDR_OAM + i*OAM_OBJ_SIZE);
+        *pSpriteReg = 0x0200;
+        ++pSpriteReg;
+        *pSpriteReg = 0x0;
+        ++pSpriteReg;
+        *pSpriteReg = 0x0;
+    }
+}
+
+//*****************************************************************************
 // initialize_background
 //*****************************************************************************
 void initialize_background(int nBG,
@@ -268,4 +290,17 @@ void initialize_background(int nBG,
     usRegVal |= nScreenSize << 14;
     
     *pBGReg = usRegVal;
+}
+
+//*****************************************************************************
+// load_tiles
+//*****************************************************************************
+void load_tiles(int                   nCharBaseBlock,
+                int                   nOffset,
+                int                   nNumTiles,
+                const unsigned short* pSrc)
+{
+    unsigned short* pDst = (unsigned short*) (ADDR_VRAM + nCharBaseBlock*CHAR_BLOCK_SIZE + TILE_4_SIZE*nOffset);
+    
+    memcpy(pDst, pSrc, nNumTiles * TILE_4_SIZE);
 }

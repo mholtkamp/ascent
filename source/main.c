@@ -207,33 +207,7 @@ typedef struct
 	int yVel;
 	int grav;
 } Box;
-typedef struct
-{
-	u16 color;
-	Box top;
-	Box bot;
-	int x;
-	int y;
-	int xVel;
-} Pipe;
 
-void flipPages(u16* dcr)
-{
-	/*u16 cr = *dcr;
-	cr = cr ^ 0x0010;
-	*dcr = cr;*/
-}
-
-//void initBirdObj()
-//{
-//	*((unsigned short*) 0x07000000) = 0x001f;
-//	*((unsigned short*) 0x07000002) = 0x403f;
-//	*((unsigned short*) 0x07000004) = 0x0020;
-//}
-void setY(float y)
-{
-	*((unsigned short*) 0x07000000) = 0x00FF & ((unsigned short) y);
-}
 int main()
 {
 	srand(time(NULL));
@@ -256,8 +230,13 @@ int main()
 	// memcpy((unsigned short*)0x05000000, bgPal, 512);
     load_palette(PALETTE_TYPE_BG, bgPal);
 	// Load tiles into char block 0
-	memcpy((unsigned short*)0x06000000, bgTiles, 896);
-	// Load map into screen block 31
+	//memcpy((unsigned short*)0x06000000, bgTiles, 896);
+	load_tiles(0, // Char block 0
+               0, // offset = 0 tiles
+               28, // tile count  = (448 * 2)/32 = 14 tiles
+               bgTiles); // tile data
+
+    // Load map into screen block 31
 	memcpy((unsigned short*) (0x06000000 + 31*0x800), bgMap, 4096);
 	
 	
@@ -269,7 +248,11 @@ int main()
     //memcpy((void*)0x05000200, birdPal, 512);
     load_palette(PALETTE_TYPE_OBJ, birdPal);
 	//Load bird sprite tiles
-	memcpy((void*)0x06010020, birdBitmap, 256);
+	//memcpy((void*)0x06010020, birdBitmap, 256);
+    load_tiles(4,
+               0,
+               8,
+               birdBitmap);
 	
 	////Load pipe chunk sprite palette
 	//memcpy((void*)0x05000220, pipechunkPal, 32);
@@ -286,6 +269,9 @@ int main()
                        0, // BG2 Disabled
                        0, // BG3 Disabled
                        1);// OBJ (sprites) enabled
+                       
+    // Clear all sprites before using them
+    clear_all_sprites();
     
 	//initBirdObj();
     sprite_initialize(0,    //sprite index
@@ -298,7 +284,7 @@ int main()
                       0,    // vert flip = false
                       bird.x, // bird x-value
                       bird.y, // bird y-value
-                      1,     // tile 1
+                      0,     // tile 1
                       0,     // priority = 0
                       0);    // palette bank 0
                       
@@ -312,7 +298,7 @@ int main()
                       0,    // vert flip = false
                       bird2.x, // bird x-value
                       bird2.y, // bird y-value
-                      1,     // tile 1
+                      0,     // tile 1
                       0,     // priority = 0
                       1);    // palette bank 1
 	
@@ -365,19 +351,23 @@ int main()
         
         bird.y += yVel;
 		if(bird.y > 160 - bird.height)
+        {
 			bird.y = 160 - bird.height;
+        }
+        if(bird.y < 10)
+            bird.y = 0;
 		sprite_set_position(0, bird.x, bird.y);
 		
 		y += 1;
 		if( y%20 < 10)
         {
-            sprite_set_tile(0, 5);
+            sprite_set_tile(0, 4);
             sprite_flip(0, 1, 0);
             sprite_set_palette(0, 1);
         }
 		else
         {
-			sprite_set_tile(0, 1);
+			sprite_set_tile(0, 0);
             sprite_flip(0, 0, 0);
             sprite_set_palette(0, 0);
         }

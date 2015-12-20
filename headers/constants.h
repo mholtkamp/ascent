@@ -31,11 +31,17 @@
 #define OAM_ATTRIB0_OFFSET 0
 #define OAM_ATTRIB1_OFFSET 2
 #define OAM_ATTRIB2_OFFSET 4
+#define MAX_SPRITES 128
 
 // BG constants
 #define BG_0 0
 #define BG_1 1
 #define BG_2 2
 #define BG_3 3
+
+#define ADDR_VRAM 0x06000000
+#define CHAR_BLOCK_SIZE 0x4000
+#define TILE_4_SIZE 0x20
+#define TILE_8_SIZE 0x40
 
 #endif

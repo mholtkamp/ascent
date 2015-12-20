@@ -136,6 +136,13 @@ void sprite_set_palette(int nIndex,
                         int nPalette);
 
 //## **************************************************************************
+//## clear_all_sprites
+//##
+//## Clears OAM data for all sprites and sets the disabled flag to true.
+//## **************************************************************************                        
+void clear_all_sprites();
+
+//## **************************************************************************
 //## initialize_background
 //##
 //## Initializes a background. Before calling this, the background should first
@@ -159,4 +166,28 @@ void initialize_background(int nBG,
                            int nWrap,
                            int nScreenSize);
 
+//## **************************************************************************
+//## load_tiles
+//##
+//## Loads tiles from RAM into VRAM at 0x06000000. These tiles are referenced
+//## by BG maps and OBJ sprites. Right now this function only works for
+//## 4 bit tiles.
+//##
+//## nCharBaseBlock - 0-3 for BG tiles. 4-5 for sprite tiles. Each char block
+//##   is 0x4000 bytes long, so char block 1 is at 0x6000000, 2 is at 
+//##   0x6004000, 3 is at 0x6008000, ... etc. Sprites must use the tiles
+//##   in a sprite char block (0x6010000 or 0x6014000). A char block only 
+//##   holds 512 4-byte tiles, but you can give up to an index of 1024 when
+//##   giving your tilemap information, that is because you can access 
+//##   the next charblock above, but BG tiles should not use sprite tiles.
+//## nOffset - the offset (in tiles) from the beginning of the charblock where 
+//##   the tiles should be inserted.
+//## nNumTiles - the number of tiles that will be copied to VRAM.
+//## pSrc - a pointer to the contiguous tile data to be copied to VRAM.
+//## 
+//## **************************************************************************
+void load_tiles(int                   nCharBaseBlock,
+                int                   nOffset,
+                int                   nNumTiles,
+                const unsigned short* pSrc);
 #endif
