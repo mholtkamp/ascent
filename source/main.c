@@ -111,7 +111,7 @@ const unsigned short bgMap[2048] __attribute__((aligned(4)))=
 0x0013,0x0014,0x0013,0x0014,0x0013,0x0014,0x0015,0x0016,0x0013,0x0014,0x0013,0x0014,0x0013,0x0017,0x0018,0x0014,
 0x0013,0x0014,0x0015,0x0016,0x0013,0x0014,0x0013,0x0017,0x0018,0x0014,0x0013,0x0014,0x0013,0x0014,0x0015,0x0016
 };
-const unsigned short birdPal[256] __attribute__((aligned(4)))=
+/*const*/ unsigned short birdPal[256] __attribute__((aligned(4)))=
 {
 	0x0000,0x7FFF,0x0C75,0x0377,0x5525,0x2537,0x3197,0x55AA,
 	0x14B5,0x0842,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
@@ -224,7 +224,10 @@ int main()
     bird2.width = 16;
     bird2.height = 16;
 	
-	//Background Memory Load
+	// Initialize utility library
+    initialize_util();
+    
+    //Background Memory Load
 
 	// Load palette
 	// memcpy((unsigned short*)0x05000000, bgPal, 512);
@@ -322,6 +325,16 @@ int main()
     float yVel2 = 0.0f;
 	int keyPressed = 0;
     int keyPressed2 = 0;
+    
+    *((unsigned short*)REG_TM1D)   = 0x0;
+    *((unsigned short*)REG_TM1CNT) = (1 << 7) | (1 << 2);
+    
+    unsigned short usTimer1Prev = 0;
+    
+    volatile unsigned short* pTimerReg1 = (volatile unsigned short*) REG_TM1D;
+    
+    int nRandFlag = 0;
+    int nSeed = 0;
 	
 	while(1)
 	{
@@ -338,6 +351,19 @@ int main()
 		{
 			yVel = -2.2f;
 			keyPressed = 1;
+            
+            if (!nRandFlag)
+            {
+                nRandFlag = 1;
+                seed_random(-1 /*nSeed*/);
+                birdPal[6] = (unsigned short) random();
+                load_palette(PALETTE_TYPE_OBJ, birdPal);
+            }
+            else
+            {
+                birdPal[6] = (unsigned short) random();
+                load_palette(PALETTE_TYPE_OBJ, birdPal);
+            }
 		}
 		else
 		{
@@ -348,6 +374,22 @@ int main()
 			keyPressed = 0;
 		}
         
+        // This timer test does not work on VBA, works on NO$GBA though...
+        // Having trouble reading from the timer data register...
+        //
+        if (usTimer1Prev != *pTimerReg1)
+        {
+            usTimer1Prev = *pTimerReg1;
+            if (usTimer1Prev % 2)
+            {
+                sprite_set_palette(0,1);
+            }
+            else
+            {
+                sprite_set_palette(0,0);
+            }
+        }
+        
         bird.y += yVel;
 		if(bird.y > 160 - bird.height)
         {
@@ -355,6 +397,7 @@ int main()
         }
         if(bird.y < 10)
             bird.y = 0;
+
 		sprite_set_position(0, bird.x, bird.y);
 		
 		y += 1;
@@ -362,13 +405,13 @@ int main()
         {
             sprite_set_tile(0, 4);
             sprite_flip(0, 1, 0);
-            sprite_set_palette(0, 1);
+            //sprite_set_palette(0, 1);
         }
 		else
         {
 			sprite_set_tile(0, 0);
             sprite_flip(0, 0, 0);
-            sprite_set_palette(0, 0);
+            //sprite_set_palette(0, 0);
         }
         
         if (key_down(KEY_B))
@@ -399,6 +442,8 @@ int main()
 		if(bird2.y > 160 - bird2.height)
 			bird2.y = 160 - bird2.height;
 		sprite_set_position(1, bird2.x, bird2.y);
+        
+        nSeed++;
 
 	}
 	return 0;

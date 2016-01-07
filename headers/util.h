@@ -1,6 +1,16 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "fixedpoint.h"
+
+//## **************************************************************************
+//## initialize_util
+//##
+//## Initializes the utility library and should be called first before anything
+//## else in the utility library is called.
+//## **************************************************************************
+void initialize_util();
+
 //## **************************************************************************
 //## initialize_display
 //##
@@ -204,16 +214,33 @@ void load_tiles(int                   nCharBaseBlock,
 //## Tile CharBlock 0 overlaps Map ScreenBlock 0-7
 //## Tile CharBlock 1 overlaps Map ScreenBlock 8-15
 //## Tile CharBlock 2 overlaps Map ScreenBlock 16-23
-//## Tile CharBlock 3s overlaps Map ScreenBlock 24-31
+//## Tile CharBlock 3 overlaps Map ScreenBlock 24-31
 //## **************************************************************************
 void load_map(int nScreenBaseBlock,
 			  const unsigned short* pSrc);
 
-// TODO: implement these functions, also finish the fixed point math lib...
-//  and also figure out how to implement timers properly using timer registers.
+//## **************************************************************************
+//## random
+//##
+//## Returns a random number between 0 and 32767 (inclusive). Before calling
+//## this function, seed_random() should be called at least once in the life-
+//## span of the game.
+//## **************************************************************************
 int random();
 
-int seed_random(int nSeed);
+//## **************************************************************************
+//## seed_random
+//##
+//## Seeds the random number generator.
+//## 
+//## nSeed can be any number, but if -1 is passed in, then the seed will be 
+//## picked from the GBA hardware timer 0 which is initialized upon calling
+//## initialize_util(). Using the GBA timer hardware will provide for more
+//## randomness, but will not work properly with some emulators (meaning same
+//## RNG sequence every time the game is played... so not random at all).
+//## **************************************************************************
+void seed_random(int nSeed);
+
 
 
 

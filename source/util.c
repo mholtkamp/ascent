@@ -3,6 +3,23 @@
 #include "constants.h"
 #include  <string.h>
 
+static unsigned short s_usRandVal = 0;
+
+//*****************************************************************************
+// initialize_util
+//*****************************************************************************
+void initialize_util()
+{
+    // Start up the timer so that it can be used in seed_random().
+    unsigned short* pTimerData = (unsigned short*) REG_TM0D;
+    unsigned short* pTimerCont = (unsigned short*) REG_TM0CNT;
+    
+    // Reset counter starting position to 0
+    *pTimerData = 0x0;
+    // Enable timer (bit 7)
+    *pTimerCont = (1 << 7);
+}
+
 //*****************************************************************************
 // initialize_display
 //*****************************************************************************
@@ -314,4 +331,33 @@ void load_map(int nScreenBaseBlock,
     unsigned short* pDst = (unsigned short*) (ADDR_VRAM + nScreenBaseBlock*SCREEN_BLOCK_SIZE);
     
     memcpy(pDst, pSrc, SCREEN_BLOCK_SIZE);
+}
+
+//*****************************************************************************
+// random
+//*****************************************************************************
+int random()
+{
+    // This RNG math is how rand is implemented in gcc, or so I've been told.
+    s_usRandVal = ((s_usRandVal * 104417) + 12345);
+    return (s_usRandVal % 32768);
+}
+
+//*****************************************************************************
+// seed_random
+//*****************************************************************************
+void seed_random(int nSeed)
+{
+    if (nSeed == -1)
+    {
+        // Seed the random number generator with the timer value.
+        // This provides the most randomness, but on certain emulators,
+        // the timer values can't seem to be read.
+        s_usRandVal = *((volatile unsigned short*) REG_TM0D);
+        
+    }
+    else
+    {
+        s_usRandVal = (unsigned short) nSeed;
+    }
 }

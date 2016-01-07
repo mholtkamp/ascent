@@ -46,4 +46,10 @@
 #define TILE_8_SIZE 0x40
 #define SCREEN_ENTRY_SIZE 0x2
 
+// Timers
+#define TM_FREQ_1    0
+#define TM_FREQ_64   1
+#define TM_FREQ_256  2
+#define TM_FREQ_1024 3
+
 #endif
