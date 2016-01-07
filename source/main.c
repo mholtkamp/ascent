@@ -237,9 +237,8 @@ int main()
                bgTiles); // tile data
 
     // Load map into screen block 31
-	memcpy((unsigned short*) (0x06000000 + 31*0x800), bgMap, 4096);
-	
-	
+	//memcpy((unsigned short*) (0x06000000 + 31*0x800), bgMap, 0x800/*4096*/);
+    load_map(31, bgMap);
 	
 	
 	//Sprite Memory Load

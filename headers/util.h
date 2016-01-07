@@ -190,4 +190,31 @@ void load_tiles(int                   nCharBaseBlock,
                 int                   nOffset,
                 int                   nNumTiles,
                 const unsigned short* pSrc);
+
+//## **************************************************************************
+//## load_map
+//##
+//## Loads a tile map from RAM into VRAM at 0x06000000. This function only
+//## supports loading a 32x32 tile map. Therefore, the pointer pSrc should
+//## point to 2048 bytes total, where each 2 bytes is a screen entry with
+//## a tile ID, flip flags, and palette bank index. 
+//## nScreenBaseBlock should be between 0 and 31. 
+//##
+//## Make sure the the maps and tile data do not intersect.
+//## Tile CharBlock 0 overlaps Map ScreenBlock 0-7
+//## Tile CharBlock 1 overlaps Map ScreenBlock 8-15
+//## Tile CharBlock 2 overlaps Map ScreenBlock 16-23
+//## Tile CharBlock 3s overlaps Map ScreenBlock 24-31
+//## **************************************************************************
+void load_map(int nScreenBaseBlock,
+			  const unsigned short* pSrc);
+
+// TODO: implement these functions, also finish the fixed point math lib...
+//  and also figure out how to implement timers properly using timer registers.
+int random();
+
+int seed_random(int nSeed);
+
+
+
 #endif

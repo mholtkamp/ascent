@@ -304,3 +304,14 @@ void load_tiles(int                   nCharBaseBlock,
     
     memcpy(pDst, pSrc, nNumTiles * TILE_4_SIZE);
 }
+
+//*****************************************************************************
+// load_map
+//*****************************************************************************
+void load_map(int nScreenBaseBlock,
+			  const unsigned short* pSrc)
+{
+    unsigned short* pDst = (unsigned short*) (ADDR_VRAM + nScreenBaseBlock*SCREEN_BLOCK_SIZE);
+    
+    memcpy(pDst, pSrc, SCREEN_BLOCK_SIZE);
+}

@@ -41,7 +41,9 @@
 
 #define ADDR_VRAM 0x06000000
 #define CHAR_BLOCK_SIZE 0x4000
+#define SCREEN_BLOCK_SIZE 0x0800
 #define TILE_4_SIZE 0x20
 #define TILE_8_SIZE 0x40
+#define SCREEN_ENTRY_SIZE 0x2
 
 #endif
