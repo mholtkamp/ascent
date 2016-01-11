@@ -241,7 +241,37 @@ int random();
 //## **************************************************************************
 void seed_random(int nSeed);
 
+//## **************************************************************************
+//## initialize_font
+//## 
+//## Loads the Vakki font to VRAM. The glyphs will be loaded into the second 
+//## charblock, or charblock #1.
+//## **************************************************************************
+void initialize_font();
 
+//## **************************************************************************
+//## print
+//## 
+//## Prints a line of text on the string.
+//## pStr should be a null-terminated string.
+//## **************************************************************************
+void print(const char* pStr);
 
+//## **************************************************************************
+//## text
+//## 
+//## Places text on the text background (TEXT_SCREENBLOCK) at a specified 
+//## x and y coordinate.
+//## **************************************************************************
+void text(const char* pStr,
+          int nX,
+          int nY);
+          
+//## **************************************************************************
+//## clear_text
+//## 
+//## Clears all the text on the screen.
+//## **************************************************************************    
+void clear_text();
 
 #endif

@@ -196,11 +196,11 @@ const unsigned short pipechunkBitmap[128] __attribute__((aligned(4)))=
 
 u16* dcr;
 int prevDown;
-typedef struct
+typedef struct Box
 {
 	u16 color;
-	u32 width;
-	u32 height;
+	int width;
+	int height;
 	int x;
 	int y;
 	int xVel;
@@ -267,10 +267,12 @@ int main()
                        1, // 1 dimensional sprite mapping
                        0, // No forced blank
                        1, // BG0 Enabled
-                       0, // BG1 Disabled
+                       1, // BG1 Enabled
                        0, // BG2 Disabled
                        0, // BG3 Disabled
                        1);// OBJ (sprites) enabled
+                       
+    initialize_font();
                        
     // Clear all sprites before using them
     clear_all_sprites();
@@ -287,7 +289,7 @@ int main()
                       bird.x, // bird x-value
                       bird.y, // bird y-value
                       0,     // tile 1
-                      0,     // priority = 0
+                      1,     // priority = 0
                       0);    // palette bank 0
                       
     sprite_initialize(1,    //sprite index
@@ -301,18 +303,18 @@ int main()
                       bird2.x, // bird x-value
                       bird2.y, // bird y-value
                       0,     // tile 1
-                      0,     // priority = 0
+                      1,     // priority = 0
                       1);    // palette bank 1
 	
 	//Set up background control register
-    initialize_background(0,  // BG 0 
-                          0,
-                          0,
-                          0,
-                          0,
+    initialize_background(1,  // BG 0 
+                          1,  // Priority = 1
+                          0,  // CharBaseBlock = 0
+                          0,  // Mosaic = off
+                          0,  // Palette = 16/16
                           31, // last screen block in VRAM (okay because size is 256x256).
-                          0,
-                          0);
+                          0,  // wrap = 0
+                          0); // screen size  = 1x1 (32t x 32t)
     
 	//*((unsigned short*) 0x04000008)= 0x1f00;
 	//*((unsigned short*) 0x04000000)= 0x1140;
@@ -326,6 +328,8 @@ int main()
 	int keyPressed = 0;
     int keyPressed2 = 0;
     
+    int bird1y = 30;
+    
     *((unsigned short*)REG_TM1D)   = 0x0;
     *((unsigned short*)REG_TM1CNT) = (1 << 7) | (1 << 2);
     
@@ -335,6 +339,16 @@ int main()
     
     int nRandFlag = 0;
     int nSeed = 0;
+    
+    print("FLAPPY");
+    print("BIRD");
+    print("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG");
+    print("BEEP 24 #@%%&*@#$");
+    
+    text("TEST", 10, 12);
+    
+    
+    
 	
 	while(1)
 	{
@@ -342,7 +356,7 @@ int main()
 	
 		//Scroll viewport
 		x += 0.5;
-		*((unsigned short*)0x4000010) = (unsigned short) x;
+		*((unsigned short*)0x4000014) = (unsigned short) x;
 		
 		
 		
@@ -350,6 +364,7 @@ int main()
 		if(key_down(KEY_A) && !keyPressed)
 		{
 			yVel = -2.2f;
+            
 			keyPressed = 1;
             
             if (!nRandFlag)
@@ -365,14 +380,13 @@ int main()
                 load_palette(PALETTE_TYPE_OBJ, birdPal);
             }
 		}
-		else
-		{
-			yVel += GRAVITY;
-		}
+            
 		if(!key_down(KEY_A))
 		{
 			keyPressed = 0;
 		}
+        
+        yVel += GRAVITY;
         
         // This timer test does not work on VBA, works on NO$GBA though...
         // Having trouble reading from the timer data register...
@@ -390,15 +404,26 @@ int main()
             }
         }
         
-        bird.y += yVel;
-		if(bird.y > 160 - bird.height)
+        bird1y += yVel;
+		if(bird1y > 160 - bird.height /*&&
+           bird1y < 200 - bird.height*/)
         {
-			bird.y = 160 - bird.height;
+			bird1y = 160 - bird.height;
+            yVel = 0;
         }
-        if(bird.y < 10)
-            bird.y = 0;
+        if(bird1y < 0)
+        {
+            bird1y = 0;
+        }
+        
+        if (bird1y <= 256 && 
+            bird1y >=  200 - bird.height)
+        {
+            print("BOOOOOOOOOOOP");
+        
+        }
 
-		sprite_set_position(0, bird.x, bird.y);
+		sprite_set_position(0, bird.x, bird1y);
 		
 		y += 1;
 		if( y%20 < 10)
@@ -416,6 +441,7 @@ int main()
         
         if (key_down(KEY_B))
         {
+            clear_text();
             sprite_enable(0, 0);
         }
         else

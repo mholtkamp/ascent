@@ -16,10 +16,17 @@ static inline fixed int_to_fixed(int nInt)
     return nInt << FIXED_SHIFT;
 }
 
+static inline fixed float_to_fixed(float fFloat)
+{
+   return (fixed) (fFloat * FIXED_SCALE);
+}
+
 static inline int fixed_to_int(fixed nFixed)
 {
     return nFixed >> FIXED_SHIFT;
 }
+
+
 
 // Fixed point math operations
 static inline fixed fixed_add(fixed fA, fixed fB)

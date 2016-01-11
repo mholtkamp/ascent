@@ -52,4 +52,13 @@
 #define TM_FREQ_256  2
 #define TM_FREQ_1024 3
 
+// Text and Fonts
+#define VAKKI_NUM_GLYPHS 64
+#define VAKKI_SIZE 2048
+#define ASCII_OFFSET 0x20
+#define TEXT_SCREENBLOCK 16
+
+#define SCREEN_ENTRIES_PER_LINE 32
+#define MAX_LINES_ON_SCREEN 20
+
 #endif

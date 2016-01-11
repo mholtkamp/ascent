@@ -1,9 +1,11 @@
 #include "util.h"
 #include "registers.h"
 #include "constants.h"
+#include "font.h"
 #include  <string.h>
 
 static unsigned short s_usRandVal = 0;
+static int s_nPrintLine = 1;
 
 //*****************************************************************************
 // initialize_util
@@ -360,4 +362,99 @@ void seed_random(int nSeed)
     {
         s_usRandVal = (unsigned short) nSeed;
     }
+}
+
+//*****************************************************************************
+// initialize_font
+//*****************************************************************************
+void initialize_font()
+{
+    // Upload data to second charblock
+    // Maybe make this configurable as a parameter.
+    unsigned short* pDst = (unsigned short*) (ADDR_VRAM + CHAR_BLOCK_SIZE);
+    
+    // Copy tile data to Charblock 1
+    memcpy(pDst, arVakkiFont, VAKKI_SIZE);
+    
+    // Set white color in last palette (bank #16);
+    pDst = (unsigned short*) (ADDR_PALETTE_BG + PALETTE_BANK_SIZE_BYTES*15 + 2);
+    
+    *pDst = 0x7fff;
+    
+    // Initialize background 0 for printing/displaying text.
+    initialize_background(0, // BG 0
+                          0, // Priority? 0
+                          1, // Char Base Block 1
+                          0, // no mosaic
+                          0, // 16/16 palette
+                          16, // screen base block 16
+                          0,  // Wrap, no? doesnt even work on GB0
+                          0); // 0 = 32tx32t
+                          
+    // Clear the SBB 16 map
+    pDst = (unsigned short*) (ADDR_VRAM + 16*SCREEN_BLOCK_SIZE); 
+    memset(pDst, 0, SCREEN_BLOCK_SIZE);
+}
+
+//*****************************************************************************
+// print
+//*****************************************************************************
+void print(const char* pStr)
+{
+    // Print out on screen like console. Does not support formatted strings.
+    int nStrlen = strlen(pStr);
+    int i = 0;
+    
+    unsigned short* pDst = (unsigned short*) (ADDR_VRAM + TEXT_SCREENBLOCK*SCREEN_BLOCK_SIZE);
+    pDst += (SCREEN_ENTRIES_PER_LINE * s_nPrintLine);
+    
+    for (i = 0; i < nStrlen; i++)
+    {
+        pDst[i] = 0xf000 + (pStr[i] - ASCII_OFFSET); 
+    }
+    
+    s_nPrintLine++;
+    if (s_nPrintLine > MAX_LINES_ON_SCREEN)
+    {
+        s_nPrintLine = 0;
+    }
+}
+
+//*****************************************************************************
+// text
+//*****************************************************************************
+void text(const char* pStr,
+          int nX,
+          int nY)
+{
+    int i       = 0;
+    int nStrlen = strlen(pStr);
+    
+    if (nStrlen <= SCREEN_ENTRIES_PER_LINE &&
+        nX >= 0                            &&
+        nY >= 0                            &&
+        nX < MAX_LINES_ON_SCREEN           &&
+        nY < SCREEN_ENTRIES_PER_LINE)
+    {
+        unsigned short* pDst = (unsigned short*) (ADDR_VRAM + TEXT_SCREENBLOCK * SCREEN_BLOCK_SIZE);
+        pDst += SCREEN_ENTRIES_PER_LINE * nY + nX;
+        
+        for (i = 0; i < nStrlen; i++)
+        {
+            // 0xf000 sets the palette bank to 15, which is the color white.
+            *pDst = 0xf000 + (pStr[i] - ASCII_OFFSET);
+            pDst++;
+        }
+    }
+    
+}
+
+//*****************************************************************************
+// clear_text
+//*****************************************************************************
+void clear_text()
+{
+    unsigned short* pDst = (unsigned short*) (ADDR_VRAM + TEXT_SCREENBLOCK * SCREEN_BLOCK_SIZE);
+    
+    memset(pDst, 0, SCREEN_BLOCK_SIZE);
 }
