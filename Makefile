@@ -18,7 +18,7 @@ include $(DEVKITARM)/gba_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	ascent
 BUILD		:=	build
-SOURCES		:=	source
+SOURCES		:=	source source/images
 DATA		:=
 GRAPHICS	:=	gfx	
 INCLUDES	:=  headers
