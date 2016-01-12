@@ -3,11 +3,13 @@
 #include "registers.h"
 #include "constants.h"
 #include "menu.h"
-#include "images/title.h"
+#include "gamedata.h"
 
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
+
+GameData gamedata;
 
 int main()
 {	
@@ -50,9 +52,15 @@ int main()
 	{
 		sync_with_vblank();
 		
+        if (gamedata.nGameState == STATE_MENU)
+        {
+            menu_update(&gamedata);
+        }
+        if (gamedata.nGameState == STATE_GAME)
+        {
+            //game_update(&gamedata);
+        }
 		
-		
-
 	}
 	return 0;
 }

@@ -1,6 +1,9 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+// ****************************************************************************
+//  GBA Constants
+// ****************************************************************************
 // Key constants
 #define KEY_A			0x0001
 #define KEY_B	        0x0002
@@ -60,5 +63,20 @@
 
 #define SCREEN_ENTRIES_PER_LINE 32
 #define MAX_LINES_ON_SCREEN 20
+
+// ****************************************************************************
+//  Ascent Constants
+// ****************************************************************************
+
+// Game States
+#define STATE_MENU 0
+#define STATE_GAME 1
+
+// Floor constants
+#define FLOOR_WIDTH 10
+#define FLOOR_HEIGHT 10
+
+#define HERO_SPRITE_INDEX 0 
+
 
 #endif

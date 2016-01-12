@@ -2,6 +2,8 @@
 #include "images/title.h"
 #include "util.h"
 #include "constants.h"
+#include "gamedata.h"
+#include "game.h"
 
 void menu_initialize()
 {
@@ -21,7 +23,22 @@ void menu_initialize()
     text("PRESS START",9,12);
 }
 
-void menu_update()
+void menu_update(GameData* pData)
 {
-
+    if (key_down(KEY_START))
+    {
+        // Initialize the game data struct
+        game_data_initialize(pData);
+        
+        // Set the game state to STATE_GAME
+        // This is actually redundant, but kept for clarity.
+        pData->nGameState = STATE_GAME;
+        
+        // Clear screen text
+        clear_text();
+        
+        // Initialize game, specifically by uploading data to
+        // video ram for tiles and maps.
+        game_initialize();
+    }
 }
