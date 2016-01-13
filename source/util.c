@@ -4,6 +4,7 @@
 #include "font.h"
 #include  <string.h>
 
+static unsigned short s_usKeys = 0xffff;
 static unsigned short s_usRandVal = 0;
 static int s_nPrintLine = 1;
 
@@ -65,11 +66,19 @@ void sync_with_vblank()
 }
 
 //*****************************************************************************
+// poll_keys
+//*****************************************************************************
+ void poll_keys()
+ {
+    s_usKeys = ~(*((volatile unsigned short*)REG_KEYINPUT));
+ }
+ 
+//*****************************************************************************
 // key_down
 //*****************************************************************************
 int key_down(unsigned short usKey)
 {
-    return (~*((volatile unsigned short*)REG_KEYINPUT)) & usKey;
+    return s_usKeys & usKey;
 }
 
 //*****************************************************************************

@@ -4,7 +4,7 @@
 #include "constants.h"
 #include "menu.h"
 #include "gamedata.h"
-
+#include "game.h"
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
@@ -51,6 +51,7 @@ int main()
 	while(1)
 	{
 		sync_with_vblank();
+        poll_keys();
 		
         if (gamedata.nGameState == STATE_MENU)
         {
@@ -58,7 +59,7 @@ int main()
         }
         if (gamedata.nGameState == STATE_GAME)
         {
-            //game_update(&gamedata);
+            game_update(&gamedata);
         }
 		
 	}

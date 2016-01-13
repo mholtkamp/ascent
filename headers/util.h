@@ -35,6 +35,13 @@ void initialize_display(int nVideoMode,
  void sync_with_vblank();
  
 //## **************************************************************************
+//## poll_keys
+//##
+//## Polls the key register on the GBA. Should be used before calling key_down.
+//## **************************************************************************
+ void poll_keys();
+ 
+//## **************************************************************************
 //## key_down
 //##
 //## Returns 1 if key is currently down, 0 otherwise.

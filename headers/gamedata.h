@@ -8,6 +8,7 @@ typedef struct GameData
 {
     int nGameState;
     int nLevel;
+    int nRoom;
     char arFloor[FLOOR_WIDTH][FLOOR_HEIGHT];
     Hero hero;
     

@@ -5,7 +5,7 @@
 #include "util.h"
 #include "registers.h"
 #include "constants.h"
-#include "images/title.h"
+#include "images/img_title.h"
 
 
 #define SCREEN_WIDTH 240

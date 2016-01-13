@@ -1,5 +1,5 @@
 #include "menu.h"
-#include "images/title.h"
+#include "images/img_title.h"
 #include "util.h"
 #include "constants.h"
 #include "gamedata.h"
@@ -39,6 +39,6 @@ void menu_update(GameData* pData)
         
         // Initialize game, specifically by uploading data to
         // video ram for tiles and maps.
-        game_initialize();
+        game_initialize(pData);
     }
 }

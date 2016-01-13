@@ -7,6 +7,7 @@ void game_data_initialize(GameData* pGameData)
     {
         pGameData->nGameState = STATE_GAME;
         pGameData->nLevel = 1;
+        pGameData->nRoom = 0;
         memset(pGameData->arFloor, 0, FLOOR_WIDTH * FLOOR_HEIGHT);
         hero_initialize(&(pGameData->hero));
     }
