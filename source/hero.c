@@ -6,7 +6,13 @@
 #include "images/img_hero.h"
 
 #define HERO_MOVESPEED 1
-static int s_nVert = 0;
+
+#define HERO_DIR_RIGHT 1
+#define HERO_DIR_DOWN  2
+#define HERO_DIR_LEFT  4
+#define HERO_DIR_UP    8
+
+static int s_nDir = 0;
 static fixed s_fMoveSpeed[HERO_MAX_SPEED] = {0, 0, 0, 0,
                                              0, 0, 0, 0};
                                              
@@ -70,29 +76,31 @@ void hero_initialize(Hero* pHero)
 
 void hero_update(Hero* pHero)
 {
-    int nVert = 0;
     
     if (key_down(KEY_RIGHT))
     {
         pHero->rect.fX += s_fMoveSpeed[pHero->nSpeed];
+        s_nDir = HERO_DIR_RIGHT;
     }
     else if (key_down(KEY_LEFT))
     {
         pHero->rect.fX += -s_fMoveSpeed[pHero->nSpeed];
+        s_nDir = HERO_DIR_LEFT;
     }
     
     if (key_down(KEY_UP))
     {
         pHero->rect.fY += -s_fMoveSpeed[pHero->nSpeed];
-        nVert = 1;
+        s_nDir = HERO_DIR_UP;
     }
     else if (key_down(KEY_DOWN))
     {
         pHero->rect.fY += s_fMoveSpeed[pHero->nSpeed];
-        nVert = 1;
+        s_nDir = HERO_DIR_DOWN;
     }
     
-    sprite_set_tile(HERO_SPRITE_INDEX, HERO_VERT_TILE_INDEX * nVert);
+    sprite_set_tile(HERO_SPRITE_INDEX, HERO_VERT_TILE_INDEX * ((s_nDir == HERO_DIR_DOWN) || (s_nDir == HERO_DIR_UP)));
+    sprite_flip(HERO_SPRITE_INDEX, (s_nDir == HERO_DIR_LEFT), (s_nDir == HERO_DIR_DOWN));
     
     sprite_set_position(HERO_SPRITE_INDEX, fixed_to_int(pHero->rect.fX), fixed_to_int(pHero->rect.fY));
 }
