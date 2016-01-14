@@ -265,6 +265,13 @@ void initialize_font();
 void print(const char* pStr);
 
 //## **************************************************************************
+//## print_int
+//## 
+//## Prints an integer.
+//## **************************************************************************
+void print_int(int nInt);
+
+//## **************************************************************************
 //## text
 //## 
 //## Places text on the text background (TEXT_SCREENBLOCK) at a specified 

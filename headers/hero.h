@@ -16,6 +16,11 @@
 #define HERO_MAX_DAMAGE 8
 #define HERO_MAX_SPEED  8
 
+#define HERO_RECT_WIDTH  14
+#define HERO_RECT_HEIGHT 14
+#define HERO_SPRITE_X_OFF 1
+#define HERO_SPRITE_Y_OFF 1
+
 typedef struct Hero
 {
     int nMaxHealth;

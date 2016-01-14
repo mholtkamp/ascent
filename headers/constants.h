@@ -77,6 +77,7 @@
 #define FLOOR_HEIGHT 10
 
 #define HERO_SPRITE_INDEX 0 
+#define ADDR_ROOM_SBB 0x0600f800
 
 
 #endif

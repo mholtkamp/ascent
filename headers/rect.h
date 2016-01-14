@@ -16,4 +16,8 @@ typedef struct Rect
 
 void rect_initialize(Rect* pRect);
 
+void rect_move_with_bg_collision(Rect* pRect,
+                                 fixed fDX,
+                                 fixed fDY);
+
 #endif

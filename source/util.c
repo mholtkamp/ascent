@@ -430,6 +430,66 @@ void print(const char* pStr)
 }
 
 //*****************************************************************************
+// print_int
+//*****************************************************************************
+void print_int(int nInt)
+{
+    int i = 3;
+    char arStr[5] = {' ', ' ', ' ', ' ', 0x0};
+    
+    if (nInt > 9999)
+    {
+        arStr[0] = 'E';
+        arStr[1] = 'R';
+        arStr[2] = 'R';
+        arStr[3] = '!';
+        
+        print(arStr);
+        return;
+    }
+    else if (nInt == 0)
+    {
+        arStr[3] = '0';
+    }
+    else if (nInt < 0)
+    {
+        arStr[0] = 'N';
+        arStr[1] = 'E';
+        arStr[2] = 'G';
+        arStr[3] = '!';
+        
+        print(arStr);
+        return;
+    }
+    
+    while (nInt != 0 &&
+           i    >= 0)
+    {
+        arStr[i] = (nInt % 10) + '0';
+        nInt = nInt/10;
+        --i;
+    }
+    
+    /*
+    arStr[0] = '0' + ((nInt/1000) % 10);
+    arStr[1] = '0' + ((nInt/100) % 10);
+    arStr[2] = '0' + ((nInt/10) % 10);
+    arStr[3] = '0' + (nInt % 10);
+    
+    
+    if (arStr[0] == '0')
+        arStr[0] = ' ';
+    if (arStr[1] == '0')
+        arStr[1] = ' ';
+    if (arStr[2] == '0')
+        arStr[2] = ' ';
+        
+    */
+        
+    print(arStr);
+}
+
+//*****************************************************************************
 // text
 //*****************************************************************************
 void text(const char* pStr,
@@ -466,4 +526,6 @@ void clear_text()
     unsigned short* pDst = (unsigned short*) (ADDR_VRAM + TEXT_SCREENBLOCK * SCREEN_BLOCK_SIZE);
     
     memset(pDst, 0, SCREEN_BLOCK_SIZE);
+    
+    s_nPrintLine = 0;
 }

@@ -7,10 +7,10 @@
 
 #define HERO_MOVESPEED 1
 
-#define HERO_DIR_RIGHT 1
-#define HERO_DIR_DOWN  2
-#define HERO_DIR_LEFT  4
-#define HERO_DIR_UP    8
+#define HERO_DIR_RIGHT 0
+#define HERO_DIR_DOWN  1
+#define HERO_DIR_LEFT  2
+#define HERO_DIR_UP    3
 
 static int s_nDir = 0;
 static fixed s_fMoveSpeed[HERO_MAX_SPEED] = {0, 0, 0, 0,
@@ -18,6 +18,7 @@ static fixed s_fMoveSpeed[HERO_MAX_SPEED] = {0, 0, 0, 0,
                                              
 void hero_static_initialize(Hero* pHero)
 {
+    // Create move-speed table
     s_fMoveSpeed[0] = float_to_fixed(1.0f);
     s_fMoveSpeed[1] = float_to_fixed(1.4f);
     s_fMoveSpeed[2] = float_to_fixed(1.8f);
@@ -70,38 +71,51 @@ void hero_initialize(Hero* pHero)
         pHero->nDamage    = HERO_STARTING_DAMAGE;
         pHero->nSpeed     = HERO_STARTING_SPEED;
         
-        rect_initialize(&(pHero->rect));
+        pHero->rect.fX      = 0;
+        pHero->rect.fY      = 0;
+        pHero->rect.fWidth  = int_to_fixed(HERO_RECT_WIDTH);
+        pHero->rect.fHeight = int_to_fixed(HERO_RECT_HEIGHT);
     }   
 }
 
 void hero_update(Hero* pHero)
-{
+{   
+    fixed fDX = 0;
+    fixed fDY = 0;
     
     if (key_down(KEY_RIGHT))
     {
-        pHero->rect.fX += s_fMoveSpeed[pHero->nSpeed];
+        fDX = s_fMoveSpeed[pHero->nSpeed];
         s_nDir = HERO_DIR_RIGHT;
     }
     else if (key_down(KEY_LEFT))
     {
-        pHero->rect.fX += -s_fMoveSpeed[pHero->nSpeed];
+        fDX = -s_fMoveSpeed[pHero->nSpeed];
         s_nDir = HERO_DIR_LEFT;
     }
     
     if (key_down(KEY_UP))
     {
-        pHero->rect.fY += -s_fMoveSpeed[pHero->nSpeed];
+        fDY = -s_fMoveSpeed[pHero->nSpeed];
         s_nDir = HERO_DIR_UP;
     }
     else if (key_down(KEY_DOWN))
     {
-        pHero->rect.fY += s_fMoveSpeed[pHero->nSpeed];
+        fDY = s_fMoveSpeed[pHero->nSpeed];
         s_nDir = HERO_DIR_DOWN;
     }
     
-    sprite_set_tile(HERO_SPRITE_INDEX, HERO_VERT_TILE_INDEX * ((s_nDir == HERO_DIR_DOWN) || (s_nDir == HERO_DIR_UP)));
-    sprite_flip(HERO_SPRITE_INDEX, (s_nDir == HERO_DIR_LEFT), (s_nDir == HERO_DIR_DOWN));
+    rect_move_with_bg_collision(&(pHero->rect), fDX, fDY);
+
+    sprite_set_tile(HERO_SPRITE_INDEX, 
+                    HERO_VERT_TILE_INDEX * ((s_nDir == HERO_DIR_DOWN) || (s_nDir == HERO_DIR_UP)));
+                    
+    sprite_flip(HERO_SPRITE_INDEX, 
+                s_nDir == HERO_DIR_LEFT,
+                s_nDir == HERO_DIR_DOWN);
     
-    sprite_set_position(HERO_SPRITE_INDEX, fixed_to_int(pHero->rect.fX), fixed_to_int(pHero->rect.fY));
+    sprite_set_position(HERO_SPRITE_INDEX, 
+                        fixed_to_int(pHero->rect.fX) - HERO_SPRITE_X_OFF, 
+                        fixed_to_int(pHero->rect.fY) - HERO_SPRITE_Y_OFF);
 }
 
