@@ -82,6 +82,8 @@
 #define NUM_LEVELS 5
 #define ROOM_CLEARED_FLAG 0x80
 
+#define BG_COLLISION_BIT 0x0010
+
 #define LEVEL_1_ROOM_COUNT 6
 #define LEVEL_2_ROOM_COUNT 9
 #define LEVEL_3_ROOM_COUNT 12
@@ -91,6 +93,9 @@
 
 #define HERO_SPRITE_INDEX 0 
 #define ADDR_ROOM_SBB 0x0600f800
+
+#define MAX_ENEMIES 12
+#define MAX_BULLETS 12
 
 
 #endif

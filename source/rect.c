@@ -2,7 +2,6 @@
 #include "constants.h"
 #include "util.h"
 
-#define BG_COLLISION_BIT 0x0010
 #define COLLISION_BUFFER 0x00000010
 
 void rect_initialize(Rect* pRect)

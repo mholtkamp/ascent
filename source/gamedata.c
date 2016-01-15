@@ -11,5 +11,10 @@ void game_data_initialize(GameData* pGameData)
         pGameData->nRoomY = 0;
         memset(pGameData->arFloor, 0, FLOOR_WIDTH * FLOOR_HEIGHT);
         hero_initialize(&(pGameData->hero));
+        pGameData->nPaused = 0;
+        pGameData->nDelay  = 0;
+        
+        pGameData->nBulletIndex = 0;
+        pGameData->nHeroIndex = 0;
     }
 }

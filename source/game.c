@@ -3,6 +3,7 @@
 #include "util.h"
 #include "images/img_rooms.h"
 #include "images/img_hero.h"
+#include "images/img_bullet.h"
 
 
 #define DIR_RIGHT 0
@@ -31,20 +32,43 @@ void game_initialize(GameData* pData)
     
     // Initialize the hero
     hero_static_initialize(&(pData->hero));
+    
+    // Initialize bullet graphics upfront
+    bullet_load_graphics();
 }
 
 void game_update(GameData* pData)
 {
     static int s_nADown = 0;
+    int i = 0;
+    Bullet* pBullets = pData->arBullets;
     
-    hero_update(&(pData->hero));
+    // Do not update game, if the game is delayed or paused
+    if (pData->nDelay > 0)
+    {
+        pData->nDelay--;
+        return;
+    }
     
-    if (key_down(KEY_A) && !s_nADown)
+    // Update hero actions
+    hero_update(&(pData->hero), pData);
+    
+    // Update all bullets
+    for (i = 0; i < MAX_BULLETS; i++)
+    {
+        // Loop through bullet array and only call update if alive
+        if (pBullets[i].nAlive)
+        {
+            pBullets[i].update(&(pBullets[i]), pData);
+        }
+    }
+    
+    if (key_down(KEY_B) && !s_nADown)
     {
         _game_clear_room(pData);
         s_nADown = 1;
     }
-    else
+    else if (!key_down(KEY_B))
     {
         s_nADown = 0;
     }
@@ -141,7 +165,23 @@ void _game_generate_floor(GameData* pData)
     for (nRoomCount = 1; nRoomCount < nNumRooms;)
     {
         // Pick a random direction
-        nDir = random() % 4;
+        int nRand = random();
+        if (nRand < 32768/4)
+        {
+            nDir = DIR_RIGHT;
+        }
+        else if (nRand < 2*(32768/4))
+        {
+            nDir = DIR_DOWN;
+        }
+        else if (nRand < 3*(32768/4))
+        {
+            nDir = DIR_LEFT;
+        }
+        else
+        {
+            nDir = DIR_UP;
+        }
         
         // Reset the move attempt counter.
         // If this goes above 4 attempts, do a desperate plot
@@ -270,6 +310,10 @@ void _game_load_room(GameData* pData)
         pMap[15 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 20;
         pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 20;
     }
+    
+    // Add a delay before game updates
+    //pData->nDelay = 5;
+    //_game_update_sprites();
 }
 
 void _game_clear_room(GameData* pData)

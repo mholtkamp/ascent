@@ -350,7 +350,7 @@ void load_map(int nScreenBaseBlock,
 int random()
 {
     // This RNG math is how rand is implemented in gcc, or so I've been told.
-    s_usRandVal = ((s_usRandVal * 104417) + 12345);
+    s_usRandVal = ((s_usRandVal * 1103515245) + 12345);
     return (s_usRandVal % 32768);
 }
 
@@ -433,10 +433,10 @@ void print(const char* pStr)
 //*****************************************************************************
 void print_int(int nInt)
 {
-    int i = 3;
-    char arStr[5] = {' ', ' ', ' ', ' ', 0x0};
+    int i = 4;
+    char arStr[6] = {' ',' ', ' ', ' ', ' ', 0x0};
     
-    if (nInt > 9999)
+    if (nInt > 99999)
     {
         arStr[0] = 'E';
         arStr[1] = 'R';
@@ -448,7 +448,7 @@ void print_int(int nInt)
     }
     else if (nInt == 0)
     {
-        arStr[3] = '0';
+        arStr[4] = '0';
     }
     else if (nInt < 0)
     {
@@ -468,22 +468,6 @@ void print_int(int nInt)
         nInt = nInt/10;
         --i;
     }
-    
-    /*
-    arStr[0] = '0' + ((nInt/1000) % 10);
-    arStr[1] = '0' + ((nInt/100) % 10);
-    arStr[2] = '0' + ((nInt/10) % 10);
-    arStr[3] = '0' + (nInt % 10);
-    
-    
-    if (arStr[0] == '0')
-        arStr[0] = ' ';
-    if (arStr[1] == '0')
-        arStr[1] = ' ';
-    if (arStr[2] == '0')
-        arStr[2] = ' ';
-        
-    */
         
     print(arStr);
 }

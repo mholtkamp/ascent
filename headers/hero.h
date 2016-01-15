@@ -28,6 +28,8 @@ typedef struct Hero
     int nGems;
     int nDamage;
     int nSpeed;
+    int nBullet;
+    int nAttackDelay;
     Rect rect;
 } Hero;
 
@@ -35,6 +37,10 @@ void hero_static_initialize(Hero* pHero);
 
 void hero_initialize(Hero* pHero);
 
-void hero_update(Hero* pHero);
+void hero_update(Hero* pHero,
+                 void* pGameData);
+
+void _hero_fire_bullet(Hero* pHero,
+                       void* pGameData);
 
 #endif

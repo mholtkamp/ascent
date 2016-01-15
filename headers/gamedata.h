@@ -3,6 +3,8 @@
 
 #include "constants.h"
 #include "hero.h"
+#include "bullet.h"
+#include "enemy.h"
 
 typedef struct GameData
 {
@@ -12,7 +14,12 @@ typedef struct GameData
     int nRoomY;
     char arFloor[FLOOR_WIDTH][FLOOR_HEIGHT];
     Hero hero;
-    
+    int nPaused;
+    int nDelay;
+    Bullet arBullets[MAX_BULLETS];
+    Enemy arEnemies[MAX_ENEMIES];
+    int nBulletIndex;
+    int nHeroIndex;
 } GameData;
 
 void game_data_initialize(GameData* pGameData);

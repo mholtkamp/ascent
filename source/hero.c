@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "fixedpoint.h"
 #include "images/img_hero.h"
+#include "gamedata.h"
 
 #define HERO_MOVESPEED 1
 
@@ -65,11 +66,13 @@ void hero_initialize(Hero* pHero)
 {
     if (pHero != 0)
     {
-        pHero->nMaxHealth = HERO_STARTING_HEALTH;
-        pHero->nHealth    = HERO_STARTING_HEALTH;
-        pHero->nGems      = HERO_STARTING_GEMS;
-        pHero->nDamage    = HERO_STARTING_DAMAGE;
-        pHero->nSpeed     = HERO_STARTING_SPEED;
+        pHero->nMaxHealth   = HERO_STARTING_HEALTH;
+        pHero->nHealth      = HERO_STARTING_HEALTH;
+        pHero->nGems        = HERO_STARTING_GEMS;
+        pHero->nDamage      = HERO_STARTING_DAMAGE;
+        pHero->nSpeed       = HERO_STARTING_SPEED;
+        pHero->nAttackDelay = BULLET_BASIC_ATTACK_DELAY;
+        pHero->nBullet      = BULLET_TYPE_BASIC;
         
         pHero->rect.fX      = 0;
         pHero->rect.fY      = 0;
@@ -78,11 +81,13 @@ void hero_initialize(Hero* pHero)
     }   
 }
 
-void hero_update(Hero* pHero)
+void hero_update(Hero* pHero,
+                 void* pGameData)
 {   
     fixed fDX = 0;
     fixed fDY = 0;
     
+    // Perform movement first
     if (key_down(KEY_RIGHT))
     {
         fDX = s_fMoveSpeed[pHero->nSpeed];
@@ -117,5 +122,40 @@ void hero_update(Hero* pHero)
     sprite_set_position(HERO_SPRITE_INDEX, 
                         fixed_to_int(pHero->rect.fX) - HERO_SPRITE_X_OFF, 
                         fixed_to_int(pHero->rect.fY) - HERO_SPRITE_Y_OFF);
+                        
+     // Next, check if a shot is fired
+     if (key_down(KEY_A) &&
+         pHero->nAttackDelay == 0)
+     {
+         _hero_fire_bullet(pHero, pGameData);
+     }
+     else if (pHero->nAttackDelay != 0)
+     {
+        print_int(pHero->nAttackDelay);
+        pHero->nAttackDelay--;
+     }
 }
 
+void _hero_fire_bullet(Hero* pHero,
+                       void* pGameData)
+{
+    print("FIRE");
+    GameData* pData = (GameData*) pGameData;
+    
+    // Find what bullet index is next to be used
+    int nIndex = pData->nBulletIndex;
+    pData->nBulletIndex++;
+    
+    if (pData->nBulletIndex >= MAX_BULLETS)
+    {
+        pData->nBulletIndex = 0;
+    }
+    
+    Bullet* pBullet = &(pData->arBullets[nIndex]);
+    bullet_initialize(pBullet, pHero->nBullet, nIndex);
+    pBullet->rect.fX = pHero->rect.fX + ((HERO_RECT_WIDTH/2) << FIXED_SHIFT);
+    pBullet->rect.fY = pHero->rect.fY + ((HERO_RECT_HEIGHT/2) << FIXED_SHIFT);
+    pBullet->fXVel = int_to_fixed(3);
+    
+    pHero->nAttackDelay = pBullet->nDelay;
+}
