@@ -365,7 +365,6 @@ void seed_random(int nSeed)
         // This provides the most randomness, but on certain emulators,
         // the timer values can't seem to be read.
         s_usRandVal = *((volatile unsigned short*) REG_TM0D);
-        
     }
     else
     {

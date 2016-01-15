@@ -48,6 +48,9 @@
 #define TILE_4_SIZE 0x20
 #define TILE_8_SIZE 0x40
 #define SCREEN_ENTRY_SIZE 0x2
+#define SCREEN_BLOCK_MAP_WIDTH 32
+#define SCREEN_BLOCK_MAP_HEIGHT 32
+#define PIXELS_PER_TILE 8
 
 // Timers
 #define TM_FREQ_1    0
@@ -75,6 +78,16 @@
 // Floor constants
 #define FLOOR_WIDTH 10
 #define FLOOR_HEIGHT 10
+#define NUM_ROOM_MAPS 6
+#define NUM_LEVELS 5
+#define ROOM_CLEARED_FLAG 0x80
+
+#define LEVEL_1_ROOM_COUNT 6
+#define LEVEL_2_ROOM_COUNT 9
+#define LEVEL_3_ROOM_COUNT 12
+#define LEVEL_4_ROOM_COUNT 13
+#define LEVEL_5_ROOM_COUNT 15
+
 
 #define HERO_SPRITE_INDEX 0 
 #define ADDR_ROOM_SBB 0x0600f800

@@ -27,6 +27,9 @@ void menu_update(GameData* pData)
 {
     if (key_down(KEY_START))
     {
+        // Firstly, kick off the RNG seed with current timer0 value
+        seed_random(-1);
+        
         // Initialize the game data struct
         game_data_initialize(pData);
         

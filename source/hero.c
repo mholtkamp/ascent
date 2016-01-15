@@ -19,14 +19,14 @@ static fixed s_fMoveSpeed[HERO_MAX_SPEED] = {0, 0, 0, 0,
 void hero_static_initialize(Hero* pHero)
 {
     // Create move-speed table
-    s_fMoveSpeed[0] = float_to_fixed(1.0f);
-    s_fMoveSpeed[1] = float_to_fixed(1.4f);
-    s_fMoveSpeed[2] = float_to_fixed(1.8f);
-    s_fMoveSpeed[3] = float_to_fixed(2.2f);
-    s_fMoveSpeed[4] = float_to_fixed(2.6f);
-    s_fMoveSpeed[5] = float_to_fixed(2.8f);
-    s_fMoveSpeed[6] = float_to_fixed(3.0f);
-    s_fMoveSpeed[7] = float_to_fixed(3.2f);
+    s_fMoveSpeed[0] = float_to_fixed(0.8f);
+    s_fMoveSpeed[1] = float_to_fixed(1.0f);
+    s_fMoveSpeed[2] = float_to_fixed(1.4f);
+    s_fMoveSpeed[3] = float_to_fixed(1.8f);
+    s_fMoveSpeed[4] = float_to_fixed(2.2f);
+    s_fMoveSpeed[5] = float_to_fixed(2.4f);
+    s_fMoveSpeed[6] = float_to_fixed(2.6f);
+    s_fMoveSpeed[7] = float_to_fixed(2.8f);
     
     // Load the hero OBJ tiles
     load_tiles(4,                    // CBB 4
