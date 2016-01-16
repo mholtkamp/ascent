@@ -16,6 +16,11 @@ int arBulletSpriteYOffsets[NUM_BULLET_TYPES] =
     2 // Basic
 };
 
+fixed arBulletSpeed[NUM_BULLET_TYPES] = 
+{
+    4 << FIXED_SHIFT
+};
+
 void bullet_load_graphics()
 {
     load_tiles(4,
@@ -37,7 +42,7 @@ void bullet_initialize(Bullet* pBullet,
     pBullet->nTime   = 0;
     pBullet->nOwner  = BULLET_OWNER_HERO;
     pBullet->nDamage = 1;
-    pBullet->nOBJ = BULLET_OBJ_START_INDEX + nIndex;
+    pBullet->nOBJ    = BULLET_OBJ_START_INDEX + nIndex;
     pBullet->nAlive  = 1;
     
     // Pick the correct bullet update function
@@ -51,6 +56,7 @@ void bullet_initialize(Bullet* pBullet,
         
         // Set starting tile
         sprite_set_tile(pBullet->nOBJ, BULLET_BASIC_TILE_INDEX);
+        
         break;
     default:
         pBullet->update       = &_bullet_basic_update;
@@ -60,6 +66,7 @@ void bullet_initialize(Bullet* pBullet,
         
         // Set starting tile
         sprite_set_tile(pBullet->nOBJ, BULLET_BASIC_TILE_INDEX);
+        
         break;
     }
     
@@ -77,6 +84,8 @@ void _bullet_basic_update(Bullet* pBullet,
                           void* pGameData)
 {
     unsigned short* pMap = (unsigned short*) ADDR_ROOM_SBB;
+    unsigned short* pTile = 0;
+    
     //GameData* pData = = (GameData*) pGameData;
     int nTile = 0;
     Rect* pRect = &(pBullet->rect);
@@ -87,12 +96,25 @@ void _bullet_basic_update(Bullet* pBullet,
     
     
     // Check if it overlaps the terrain
-    nTile = pMap[fixed_to_int(pRect->fX + (pRect->fWidth >> 1))/PIXELS_PER_TILE + 
-                (fixed_to_int(pRect->fY + (pRect->fHeight >> 1))/PIXELS_PER_TILE) * SCREEN_BLOCK_MAP_WIDTH];
+    // 0x03ff is the portion of screen-entry that contains tile index
+    pTile = &pMap[fixed_to_int(pRect->fX + (pRect->fWidth >> 1))/PIXELS_PER_TILE + 
+                 (fixed_to_int(pRect->fY + (pRect->fHeight >> 1))/PIXELS_PER_TILE) * SCREEN_BLOCK_MAP_WIDTH];
+    nTile = (*pTile) & 0x03ff;
     
-    // Check if it collided with hard object
-    if (nTile & BG_COLLISION_BIT)
+    // Check if it collided with a hard object
+    // or if lifetime expired
+    if (nTile & BG_COLLISION_BIT ||
+        pBullet->nTime >= BULLET_BASIC_LIFETIME)
     {
+        // Check if bullet hit a mushroom
+        if (nTile == MUSHROOM_TILE_INDEX_0 ||
+            nTile == MUSHROOM_TILE_INDEX_1 ||
+            nTile == MUSHROOM_TILE_INDEX_2 ||
+            nTile == MUSHROOM_TILE_INDEX_3)
+        {
+            *pTile = GROUND_TILE_INDEX;
+        }
+        
         // Bullet is dead now
         bullet_kill(pBullet);
         
@@ -108,6 +130,9 @@ void _bullet_basic_update(Bullet* pBullet,
     sprite_set_position(pBullet->nOBJ,
                         fixed_to_int(pBullet->rect.fX) - arBulletSpriteXOffsets[BULLET_TYPE_BASIC],
                         fixed_to_int(pBullet->rect.fY) - arBulletSpriteYOffsets[BULLET_TYPE_BASIC]);
+
+    // Increment timer
+    ++(pBullet->nTime);
 }
 
 void bullet_kill(Bullet* pBullet)

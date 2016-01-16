@@ -5,6 +5,7 @@
 #include "fixedpoint.h"
 #include "images/img_hero.h"
 #include "gamedata.h"
+#include "bullet.h"
 
 #define HERO_MOVESPEED 1
 
@@ -98,8 +99,7 @@ void hero_update(Hero* pHero,
         fDX = -s_fMoveSpeed[pHero->nSpeed];
         s_nDir = HERO_DIR_LEFT;
     }
-    
-    if (key_down(KEY_UP))
+    else if (key_down(KEY_UP))
     {
         fDY = -s_fMoveSpeed[pHero->nSpeed];
         s_nDir = HERO_DIR_UP;
@@ -131,7 +131,6 @@ void hero_update(Hero* pHero,
      }
      else if (pHero->nAttackDelay != 0)
      {
-        print_int(pHero->nAttackDelay);
         pHero->nAttackDelay--;
      }
 }
@@ -139,7 +138,6 @@ void hero_update(Hero* pHero,
 void _hero_fire_bullet(Hero* pHero,
                        void* pGameData)
 {
-    print("FIRE");
     GameData* pData = (GameData*) pGameData;
     
     // Find what bullet index is next to be used
@@ -155,7 +153,27 @@ void _hero_fire_bullet(Hero* pHero,
     bullet_initialize(pBullet, pHero->nBullet, nIndex);
     pBullet->rect.fX = pHero->rect.fX + ((HERO_RECT_WIDTH/2) << FIXED_SHIFT);
     pBullet->rect.fY = pHero->rect.fY + ((HERO_RECT_HEIGHT/2) << FIXED_SHIFT);
-    pBullet->fXVel = int_to_fixed(3);
+    
+    // Figure out what direction to shoot it
+    switch (s_nDir)
+    {
+    case HERO_DIR_RIGHT:
+        pBullet->fXVel = arBulletSpeed[pHero->nBullet];
+        break;
+    case HERO_DIR_DOWN:
+        pBullet->fYVel = arBulletSpeed[pHero->nBullet];
+        break;
+    case HERO_DIR_LEFT:
+        pBullet->fXVel = -arBulletSpeed[pHero->nBullet];
+        break;
+    case HERO_DIR_UP:
+        pBullet->fYVel = -arBulletSpeed[pHero->nBullet];
+        break;
+    default:
+        pBullet->fXVel = arBulletSpeed[pHero->nBullet];
+        break;
+    }
+    
     
     pHero->nAttackDelay = pBullet->nDelay;
 }

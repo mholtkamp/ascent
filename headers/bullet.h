@@ -16,8 +16,11 @@
 // Basic bullet constsants
 #define BULLET_BASIC_WIDTH 4 << FIXED_SHIFT
 #define BULLET_BASIC_HEIGHT 4 << FIXED_SHIFT
-#define BULLET_BASIC_ATTACK_DELAY 30
+#define BULLET_BASIC_ATTACK_DELAY 15
 #define BULLET_BASIC_TILE_INDEX 8
+#define BULLET_BASIC_LIFETIME 20
+
+extern fixed arBulletSpeed[NUM_BULLET_TYPES];
 
 typedef struct Bullet
 {
