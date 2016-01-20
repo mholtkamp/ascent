@@ -14,7 +14,9 @@ typedef struct Enemy
     int nOBJ;
     int nTile;
     int nPalette;
-    fixed fSpeed;
+    int nSpriteOffsetX;
+    int nSpriteOffsetY;
+    int arData[ENEMY_SCRATCH_DATA_SIZE/sizeof(int)];
 } Enemy;
 
 void enemy_initialize(Enemy* pEnemy,
@@ -26,6 +28,9 @@ void enemy_clear(Enemy*pEnemy,
                  
 void enemy_kill(Enemy* pEnemy);
 
+void enemy_update_generic(Enemy* pEnemy,
+                          void* pGameData);
+                          
 void enemy_update_caterpillar(Enemy* pEnemy,
                               void* pGameData);
                    

@@ -478,6 +478,9 @@ const short arNullEM[] = {-1};
 const short arRoom4EM1[] = 
 {
     ENEMY_TYPE_CATERPILLAR, 120, 60,
+    ENEMY_TYPE_CATERPILLAR, 120, 100,
+    ENEMY_TYPE_CATERPILLAR, 160, 60,
+    //ENEMY_TYPE_CATERPILLAR, 160, 100,
     -1
 };
 

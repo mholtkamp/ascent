@@ -184,28 +184,7 @@ void _game_generate_floor(GameData* pData)
     for (nRoomCount = 1; nRoomCount < nNumRooms;)
     {
         // Pick a random direction
-        int nRand = random();
-        
-        // Randomness was not occuring when modding by 4...
-        // Until I figure out why it's not random, this method
-        // works... but will remove it once a better method is found.
-        // Maybe try a different multiplier in random()?
-        if (nRand < 32768/4)
-        {
-            nDir = DIR_RIGHT;
-        }
-        else if (nRand < 2*(32768/4))
-        {
-            nDir = DIR_DOWN;
-        }
-        else if (nRand < 3*(32768/4))
-        {
-            nDir = DIR_LEFT;
-        }
-        else
-        {
-            nDir = DIR_UP;
-        }
+        nDir = random() % 4;
         
         // Reset the move attempt counter.
         // If this goes above 4 attempts, do a desperate plot
@@ -313,7 +292,7 @@ void _game_load_room(GameData* pData)
     
     while(1)
     {
-        if (pEnemyMap[i] == -1)
+        if (pEnemyMap[i*3] == -1)
         {
             // No more enemies to load
             break;
@@ -321,6 +300,7 @@ void _game_load_room(GameData* pData)
         else
         {
             // Initialize the enemy
+            print_int(pEnemyMap[i*3]);
             enemy_initialize(&(pData->arEnemies[i]),
                              pEnemyMap[i*3],
                              i);
@@ -330,7 +310,7 @@ void _game_load_room(GameData* pData)
             pData->arEnemies[i].rect.fY = int_to_fixed((int) pEnemyMap[i*3+2]);
         }
         
-        i += 3;
+        i++;
         
         //@@ DEBUG
         print("ENEMY ADDED");

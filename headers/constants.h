@@ -145,9 +145,16 @@
 #define OPEN_DOOR_TILE_INDEX 12
 
 // Enemies
-#define MAX_ENEMIES_PER_ROOM 5
+#define MAX_ENEMY_TYPES_PER_ROOM 5
 #define ENEMY_OBJ_START_INDEX 10
 #define MAX_ENEMY_MAPS_PER_ROOM 3
+#define ENEMY_SCRATCH_DATA_SIZE 64
+
+#define DIR_RIGHT 0
+#define DIR_DOWN  1
+#define DIR_LEFT  2
+#define DIR_UP    3
+
 
 #define ENEMY_TYPE_CATERPILLAR 0
 #define NUM_ENEMY_TYPES 1

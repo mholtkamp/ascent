@@ -5,7 +5,7 @@
 #include  <string.h>
 
 static unsigned short s_usKeys = 0xffff;
-static unsigned short s_usRandVal = 0;
+static unsigned int   s_unRandVal = 0;
 static int s_nPrintLine = 1;
 
 //*****************************************************************************
@@ -350,8 +350,8 @@ void load_map(int nScreenBaseBlock,
 int random()
 {
     // This RNG math is how rand is implemented in gcc, or so I've been told.
-    s_usRandVal = ((s_usRandVal * 1103515245) + 12345);
-    return (s_usRandVal % 32768);
+    s_unRandVal = ((s_unRandVal * /*1103515245*/104417) + 12345);
+    return (int) ((s_unRandVal >> 16) % 32768);
 }
 
 //*****************************************************************************
@@ -364,11 +364,11 @@ void seed_random(int nSeed)
         // Seed the random number generator with the timer value.
         // This provides the most randomness, but on certain emulators,
         // the timer values can't seem to be read.
-        s_usRandVal = *((volatile unsigned short*) REG_TM0D);
+        s_unRandVal = *((volatile unsigned short*) REG_TM0D);
     }
     else
     {
-        s_usRandVal = (unsigned short) nSeed;
+        s_unRandVal = (unsigned short) nSeed;
     }
 }
 

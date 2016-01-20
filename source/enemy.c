@@ -1,12 +1,13 @@
+#include <string.h>
 #include "gamedata.h"
 #include "util.h"
 #include "images/img_enemy.h"
 
 // Arrays to keep track of loaded graphics data
-static int s_arLoaded[MAX_ENEMIES_PER_ROOM]           = {0};
-static int s_arLoadedTiles[MAX_ENEMIES_PER_ROOM]      = {0};
-static int s_arLoadedTileCounts[MAX_ENEMIES_PER_ROOM] = {0};
-static int s_arLoadedPalettes[MAX_ENEMIES_PER_ROOM]   = {0};
+static int s_arLoaded[MAX_ENEMY_TYPES_PER_ROOM]           = {0};
+static int s_arLoadedTiles[MAX_ENEMY_TYPES_PER_ROOM]      = {0};
+static int s_arLoadedTileCounts[MAX_ENEMY_TYPES_PER_ROOM] = {0};
+static int s_arLoadedPalettes[MAX_ENEMY_TYPES_PER_ROOM]   = {0};
 
 void enemy_initialize(Enemy* pEnemy,
                       int nType,
@@ -26,9 +27,9 @@ void enemy_initialize(Enemy* pEnemy,
     rect_initialize(&(pEnemy->rect));
     pEnemy->nAlive = 1;
     pEnemy->nTime  = 0;
-    pEnemy->fSpeed = int_to_fixed(1);
     pEnemy->nOBJ   = ENEMY_OBJ_START_INDEX + nIndex;
     pEnemy->nTile  = 0;
+    memset(pEnemy->arData, 0, ENEMY_SCRATCH_DATA_SIZE);
     
     // Do specific enemy initialization
     switch (nType)
@@ -38,6 +39,8 @@ void enemy_initialize(Enemy* pEnemy,
         pEnemy->rect.fHeight = int_to_fixed(14);
         pEnemy->nHealth = 5;
         pEnemy->update = &enemy_update_caterpillar;
+        pEnemy->nSpriteOffsetX = 1;
+        pEnemy->nSpriteOffsetY = 1;
         
         // Graphics
         nTileCount   = 8;
@@ -47,12 +50,11 @@ void enemy_initialize(Enemy* pEnemy,
         nShape       = SHAPE_16x16;
         break;
     default:
-        
         break;
     }
     
     // Figure out if graphics data needs to be loaded...
-    for (i = 0; i < MAX_ENEMIES_PER_ROOM; i++)
+    for (i = 0; i < MAX_ENEMY_TYPES_PER_ROOM; i++)
     {
         if(s_arLoaded[i] == pEnemy->nType)
         {
@@ -69,15 +71,15 @@ void enemy_initialize(Enemy* pEnemy,
             
             // But set the static load flag at index i, because it will be loaded
             // later in the function
-            s_arLoaded[i] = 1;
+            s_arLoaded[i] = pEnemy->nType;
             break;
         }
     }
     
     
-    if (i >= MAX_ENEMIES_PER_ROOM)
+    if (i >= MAX_ENEMY_TYPES_PER_ROOM)
     {
-        print("ERROR. TOO MANY ENEMIES.");
+        print("ERROR. TOO MANY ENEMY TYPES.");
         return;
     }
     else if (nLoaded == 0)
@@ -139,9 +141,11 @@ void enemy_clear(Enemy*pEnemy,
     rect_initialize(&(pEnemy->rect));
     pEnemy->nAlive = 0;
     pEnemy->nTime  = 0;
-    pEnemy->fSpeed = 0;
     pEnemy->nOBJ   = ENEMY_OBJ_START_INDEX + nIndex;
     pEnemy->nTile  = 0;
+    pEnemy->nSpriteOffsetX = 0;
+    pEnemy->nSpriteOffsetY = 0;
+    memset(pEnemy->arData, 0, ENEMY_SCRATCH_DATA_SIZE);
 }
 
 void enemy_kill(Enemy* pEnemy)
@@ -150,12 +154,81 @@ void enemy_kill(Enemy* pEnemy)
     sprite_enable(pEnemy->nOBJ, 0);
 }
 
+void enemy_update_generic(Enemy* pEnemy,
+                          void* pGameData)
+{
+    // Update update position
+    sprite_set_position(pEnemy->nOBJ,
+                        fixed_to_int(pEnemy->rect.fX) - pEnemy->nSpriteOffsetX,
+                        fixed_to_int(pEnemy->rect.fY) - pEnemy->nSpriteOffsetY);
+                        
+    // Increment timer
+    pEnemy->nTime++;
+}
+
 void enemy_update_caterpillar(Enemy* pEnemy,
                               void* pGameData)
 {
-    sprite_set_position(pEnemy->nOBJ,
-                        fixed_to_int(pEnemy->rect.fX),
-                        fixed_to_int(pEnemy->rect.fY));
+    static const fixed SPEED   = 2 << FIXED_SHIFT;
+    
+    fixed fDX = 0;
+    fixed fDY = 0;
+    int nVert = 0;
+    // SCRATCH DATA:
+    // (int) arData + 0 = nDirection
+    // (int) arData + 4 = nRedirectTime;
+    
+    int nDirection    = *((int*) pEnemy->arData);
+    int nRedirectTime = *((int*) pEnemy->arData + 4);
+    
+    if (pEnemy->nTime         == 0 ||
+        pEnemy->nTime         == nRedirectTime)
+    {
+        // Reroll redirect time
+        // 50 = minimum time to change directions
+        // 30 = variance
+        nRedirectTime += 50 + random() % 30;
+        *((int*) pEnemy->arData + 4) = nRedirectTime;
+        
+        // Reroll the moving direction
+        // There are only 4 possible directions the caterpillar can move in
+        nDirection = random() % 4;
+        *((int*) pEnemy->arData) = nDirection;
+    }
+    
+    // Move the rect based on direction
+    switch (nDirection)
+    {
+    case DIR_RIGHT:
+        fDX = SPEED;
+        break;
+    case DIR_DOWN:
+        fDY = SPEED;
+        break;
+    case DIR_LEFT:
+        fDX = -SPEED;
+        break;
+    case DIR_UP:
+        fDY = -SPEED;
+        break;
+    default:
+        break;
+    }
+    
+    // Move caterpillar
+    rect_move_with_bg_collision(&(pEnemy->rect), fDX, fDY);
+    
+    sprite_flip(pEnemy->nOBJ,
+                nDirection == DIR_RIGHT,
+                nDirection == DIR_DOWN);
+    
+    // Vert flag used to get correct sprite
+    nVert = (nDirection == DIR_UP) || (nDirection == DIR_DOWN);
+    
+    sprite_set_tile(pEnemy->nOBJ,
+                    pEnemy->nTile + nVert*4);
+                
+    enemy_update_generic(pEnemy, pGameData);
 }
 
 void reset_room_enemy_data(void* pGameData)
@@ -166,7 +239,7 @@ void reset_room_enemy_data(void* pGameData)
     
     GameData* pData = (GameData*) pGameData;
     
-    for (i = 0; i < MAX_ENEMIES_PER_ROOM; i++)
+    for (i = 0; i < MAX_ENEMY_TYPES_PER_ROOM; i++)
     {
         s_arLoaded[i]           = -1;
         s_arLoadedTiles[i]      =  0;
@@ -177,8 +250,5 @@ void reset_room_enemy_data(void* pGameData)
         // unless the ability to bomb doors to leave a room before
         // killing all enemies is implemented).
         enemy_kill(&(pData->arEnemies[i]));
-        
-        // Disable sprite rendering too
-        sprite_enable(ENEMY_OBJ_START_INDEX + i, 0);
     }
 }
