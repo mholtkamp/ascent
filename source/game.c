@@ -14,6 +14,8 @@
 
 void game_initialize(GameData* pData)
 {
+    int i = 0;
+    
     print("IN-GAME");
     
     // Load palette for room backgrounds
@@ -35,6 +37,12 @@ void game_initialize(GameData* pData)
     
     // Initialize bullet graphics upfront
     bullet_load_graphics();
+    
+    // Clear enemies
+    for (i = 0; i < MAX_ENEMIES; i++)
+    {
+        enemy_clear(&(pData->arEnemies[i]), i);
+    }
 }
 
 void game_update(GameData* pData)
@@ -42,6 +50,7 @@ void game_update(GameData* pData)
     static int s_nADown = 0;
     int i = 0;
     Bullet* pBullets = pData->arBullets;
+    Enemy* pEnemies = pData->arEnemies;
     
     // Do not update game, if the game is delayed or paused
     if (pData->nDelay > 0)
@@ -60,6 +69,16 @@ void game_update(GameData* pData)
         if (pBullets[i].nAlive)
         {
             pBullets[i].update(&(pBullets[i]), pData);
+        }
+    }
+    
+    // Update all enemies
+    for (i = 0; i < MAX_ENEMIES; i++)
+    {
+        // Loop through enemy array and call update if alive
+        if (pEnemies[i].nAlive)
+        {
+            pEnemies[i].update(&(pEnemies[i]), pData);
         }
     }
     
@@ -272,12 +291,50 @@ void _game_generate_floor(GameData* pData)
 
 void _game_load_room(GameData* pData)
 {
+    int i = 0;
+    int nRand = 0;
+    const short* pEnemyMap = 0;
+    
+    // Get the room number/ID.
+    int nRoomNumber = (int) pData->arFloor[pData->nRoomX][pData->nRoomY];
+    
     // Clear static enemy data
-    reset_room_enemy_data();
+    reset_room_enemy_data(pData);
     
     // Load tile map
     load_map(ROOM_SBB, // SBB 31
-             arRoomTable[(int) pData->arFloor[pData->nRoomX][pData->nRoomY] & (~ROOM_CLEARED_FLAG)]);
+             arRoomTable[nRoomNumber & (~ROOM_CLEARED_FLAG)]);
+             
+    // Load enemy map
+    nRand = random() % 3;
+    pEnemyMap = arEnemyMaps[nRoomNumber & (~ROOM_CLEARED_FLAG)][nRand];
+    
+    i = 0;
+    
+    while(1)
+    {
+        if (pEnemyMap[i] == -1)
+        {
+            // No more enemies to load
+            break;
+        }
+        else
+        {
+            // Initialize the enemy
+            enemy_initialize(&(pData->arEnemies[i]),
+                             pEnemyMap[i*3],
+                             i);
+            
+            // And then set the position
+            pData->arEnemies[i].rect.fX = int_to_fixed((int) pEnemyMap[i*3+1]);
+            pData->arEnemies[i].rect.fY = int_to_fixed((int) pEnemyMap[i*3+2]);
+        }
+        
+        i += 3;
+        
+        //@@ DEBUG
+        print("ENEMY ADDED");
+    }
     
     unsigned short* pMap = (unsigned short*) ADDR_ROOM_SBB;
     

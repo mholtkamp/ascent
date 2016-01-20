@@ -19,6 +19,9 @@ void enemy_initialize(Enemy* pEnemy,
     unsigned short* pTileData    = 0;
     unsigned short* pPaletteData = 0;
     
+    int nShape = 0;
+    int nSize  = 0;
+    
     pEnemy->nType = nType;
     rect_initialize(&(pEnemy->rect));
     pEnemy->nAlive = 1;
@@ -40,6 +43,8 @@ void enemy_initialize(Enemy* pEnemy,
         nTileCount   = 8;
         pTileData    = (unsigned short*) arEnemyCaterpillarTiles;
         pPaletteData = (unsigned short*) arEnemyCaterpillarPalette;
+        nSize        = SIZE_16x16;
+        nShape       = SHAPE_16x16;
         break;
     default:
         
@@ -106,28 +111,60 @@ void enemy_initialize(Enemy* pEnemy,
     }
     
     // Save the tile index so that the update method can change
-    // it for animation.
-    pEnemy->nTile = s_arLoadedTiles[i];
+    // it for animation. Also save the palette so palette can
+    // be swapped in the update function
+    pEnemy->nTile    = s_arLoadedTiles[i];
+    pEnemy->nPalette = s_arLoadedPalettes[i];
     
-    // Lastly, set the proper tile indices and palette bank 
-    // for the OBJ to lookup
-    sprite_set_palette(pEnemy->nOBJ,
-                       s_arLoadedPalettes[i]);
-    sprite_set_tile(pEnemy->nOBJ,
-                    s_arLoadedTiles[i]);
+    // Lastly, initialize sprite OBJ data with proper data.    
+    sprite_initialize(pEnemy->nOBJ,
+                      0,  // regular mode. not affine
+                      0,  // no mosaic
+                      0,  // 16/16 palette
+                      nShape,
+                      nSize,
+                      0, // hori flip controlled in update function
+                      0, // vert flip controlled in update function
+                      250,
+                      0,
+                      pEnemy->nTile,
+                      1, // priority 1 (behind text)
+                      pEnemy->nPalette);
+}
+
+void enemy_clear(Enemy*pEnemy,
+                 int nIndex)
+{
+    pEnemy->nType = 0;
+    rect_initialize(&(pEnemy->rect));
+    pEnemy->nAlive = 0;
+    pEnemy->nTime  = 0;
+    pEnemy->fSpeed = 0;
+    pEnemy->nOBJ   = ENEMY_OBJ_START_INDEX + nIndex;
+    pEnemy->nTile  = 0;
+}
+
+void enemy_kill(Enemy* pEnemy)
+{   
+    pEnemy->nAlive = 0;
+    sprite_enable(pEnemy->nOBJ, 0);
 }
 
 void enemy_update_caterpillar(Enemy* pEnemy,
                               void* pGameData)
 {
-    
+    sprite_set_position(pEnemy->nOBJ,
+                        fixed_to_int(pEnemy->rect.fX),
+                        fixed_to_int(pEnemy->rect.fY));
 }
 
-void reset_room_enemy_data()
+void reset_room_enemy_data(void* pGameData)
 {
     // This should be called every time a room is loaded
     // so that the enemy graphics are loaded properly.
     int i = 0;
+    
+    GameData* pData = (GameData*) pGameData;
     
     for (i = 0; i < MAX_ENEMIES_PER_ROOM; i++)
     {
@@ -135,5 +172,13 @@ void reset_room_enemy_data()
         s_arLoadedTiles[i]      =  0;
         s_arLoadedTileCounts[i] =  0;
         s_arLoadedPalettes[i]   =  0;
+        
+        // Kill any living enemies (probably shouldn't happen
+        // unless the ability to bomb doors to leave a room before
+        // killing all enemies is implemented).
+        enemy_kill(&(pData->arEnemies[i]));
+        
+        // Disable sprite rendering too
+        sprite_enable(ENEMY_OBJ_START_INDEX + i, 0);
     }
 }

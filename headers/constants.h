@@ -36,6 +36,32 @@
 #define OAM_ATTRIB2_OFFSET 4
 #define MAX_SPRITES 128
 
+#define SIZE_8x8 0
+#define SIZE_16x8 0
+#define SIZE_8x16 0
+#define SIZE_16x16 1
+#define SIZE_32x8 1
+#define SIZE_8x32 1
+#define SIZE_32x32 2
+#define SIZE_32x16 2
+#define SIZE_16x32 2
+#define SIZE_64x64 3
+#define SIZE_64x32 3
+#define SIZE_32x64 3
+
+#define SHAPE_8x8 0
+#define SHAPE_16x8 1
+#define SHAPE_8x16 2
+#define SHAPE_16x16 0
+#define SHAPE_32x8 1
+#define SHAPE_8x32 2
+#define SHAPE_32x32 0
+#define SHAPE_32x16 1
+#define SHAPE_16x32 2
+#define SHAPE_64x64 0
+#define SHAPE_64x32 1
+#define SHAPE_32x64 2
+
 // BG constants
 #define BG_0 0
 #define BG_1 1
@@ -121,6 +147,7 @@
 // Enemies
 #define MAX_ENEMIES_PER_ROOM 5
 #define ENEMY_OBJ_START_INDEX 10
+#define MAX_ENEMY_MAPS_PER_ROOM 3
 
 #define ENEMY_TYPE_CATERPILLAR 0
 #define NUM_ENEMY_TYPES 1
