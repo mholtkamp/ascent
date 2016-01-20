@@ -166,6 +166,11 @@ void _game_generate_floor(GameData* pData)
     {
         // Pick a random direction
         int nRand = random();
+        
+        // Randomness was not occuring when modding by 4...
+        // Until I figure out why it's not random, this method
+        // works... but will remove it once a better method is found.
+        // Maybe try a different multiplier in random()?
         if (nRand < 32768/4)
         {
             nDir = DIR_RIGHT;
@@ -267,8 +272,11 @@ void _game_generate_floor(GameData* pData)
 
 void _game_load_room(GameData* pData)
 {
+    // Clear static enemy data
+    reset_room_enemy_data();
+    
     // Load tile map
-    load_map(31, // SBB 31
+    load_map(ROOM_SBB, // SBB 31
              arRoomTable[(int) pData->arFloor[pData->nRoomX][pData->nRoomY] & (~ROOM_CLEARED_FLAG)]);
     
     unsigned short* pMap = (unsigned short*) ADDR_ROOM_SBB;
@@ -279,36 +287,36 @@ void _game_load_room(GameData* pData)
         pData->arFloor[pData->nRoomX - 1][pData->nRoomY] == 0)
     {
         // Block off left doorway
-        pMap[8  * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[9  * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[10 * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[11 * SCREEN_BLOCK_MAP_WIDTH] = 20;
+        pMap[8  * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[9  * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[10 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[11 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
     }
     
     if (pData->nRoomX + 1 >= FLOOR_WIDTH ||
         pData->arFloor[pData->nRoomX + 1][pData->nRoomY] == 0)
     {
-        pMap[29 + 8 * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[29 + 9 * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[29 + 10 * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[29 + 11 * SCREEN_BLOCK_MAP_WIDTH] = 20;
+        pMap[29 + 8 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[29 + 9 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[29 + 10 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[29 + 11 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
     }
     
     if (pData->nRoomY - 1 < 0 ||
         pData->arFloor[pData->nRoomX][pData->nRoomY - 1] == 0)
     {
-        pMap[13] = 20;
-        pMap[14] = 20;
-        pMap[15] = 20;
-        pMap[16] = 20;
+        pMap[13] = WALL_TILE_INDEX;
+        pMap[14] = WALL_TILE_INDEX;
+        pMap[15] = WALL_TILE_INDEX;
+        pMap[16] = WALL_TILE_INDEX;
     }
     if (pData->nRoomY + 1 >= FLOOR_HEIGHT ||
         pData->arFloor[pData->nRoomX][pData->nRoomY + 1] == 0)
     {
-        pMap[13 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[14 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[15 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 20;
-        pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 20;
+        pMap[13 + 19 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[14 + 19 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[15 + 19 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
+        pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
     }
     
     // Add a delay before game updates
@@ -323,37 +331,40 @@ void _game_clear_room(GameData* pData)
     if (pData->nRoomX - 1 >= 0 &&
         pData->arFloor[pData->nRoomX - 1][pData->nRoomY] != 0)
     {
-        // Block off left doorway
-        pMap[8  * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[9  * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[10 * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[11 * SCREEN_BLOCK_MAP_WIDTH] = 12;
+        // Open left doorway
+        pMap[8  * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[9  * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[10 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[11 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
     }
     
     if (pData->nRoomX + 1 < FLOOR_WIDTH &&
         pData->arFloor[pData->nRoomX + 1][pData->nRoomY] != 0)
     {
-        pMap[29 + 8 * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[29 + 9 * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[29 + 10 * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[29 + 11 * SCREEN_BLOCK_MAP_WIDTH] = 12;
+        // Open right doorway
+        pMap[29 + 8 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[29 + 9 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[29 + 10 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[29 + 11 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
     }
     
     if (pData->nRoomY - 1 >= 0 &&
         pData->arFloor[pData->nRoomX][pData->nRoomY - 1] != 0)
     {
-        pMap[13] = 12;
-        pMap[14] = 12;
-        pMap[15] = 12;
-        pMap[16] = 12;
+        // Open top doorway
+        pMap[13] = OPEN_DOOR_TILE_INDEX;
+        pMap[14] = OPEN_DOOR_TILE_INDEX;
+        pMap[15] = OPEN_DOOR_TILE_INDEX;
+        pMap[16] = OPEN_DOOR_TILE_INDEX;
     }
     if (pData->nRoomY + 1 < FLOOR_HEIGHT &&
         pData->arFloor[pData->nRoomX][pData->nRoomY + 1] != 0)
     {
-        pMap[13 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[14 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[15 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 12;
-        pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = 12;
+        // Open bottom doorway
+        pMap[13 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[14 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[15 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
     }
     
     pData->arFloor[pData->nRoomX][pData->nRoomY] |= ROOM_CLEARED_FLAG;

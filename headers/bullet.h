@@ -45,6 +45,9 @@ void bullet_initialize(Bullet* pBullet,
                   
 void bullet_kill(Bullet* pBullet);
 
+// ***************************
+// Individual Update Functions
+// ***************************
 void _bullet_basic_update(Bullet* pBullet,
                           void* pGameData);
                           

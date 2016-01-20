@@ -81,6 +81,7 @@
 #define NUM_ROOM_MAPS 6
 #define NUM_LEVELS 5
 #define ROOM_CLEARED_FLAG 0x80
+#define ROOM_SBB 31
 
 #define BG_COLLISION_BIT 0x0010
 
@@ -97,11 +98,33 @@
 #define MAX_ENEMIES 12
 #define MAX_BULLETS 12
 
+// Tiles
+#define SPRITE_CBB 4
+#define ENEMY_TILE_START_INDEX 32
+
+// Palettes
+#define HERO_PALETTE_BANK 0
+#define BULLET_HERO_PALETTE_BANK 1
+#define BULLET_ENEMY_PALETTE_BANK 2
+#define ENEMY_PALETTE_BANK_START 3
+#define ENEMY_PALETTE_BANK_END 7  // includes bank 7
+
+// Important tile indices
 #define MUSHROOM_TILE_INDEX_0 18
 #define MUSHROOM_TILE_INDEX_1 19
 #define MUSHROOM_TILE_INDEX_2 26
 #define MUSHROOM_TILE_INDEX_3 27
 #define GROUND_TILE_INDEX 3
+#define WALL_TILE_INDEX 20
+#define OPEN_DOOR_TILE_INDEX 12
+
+// Enemies
+#define MAX_ENEMIES_PER_ROOM 5
+#define ENEMY_OBJ_START_INDEX 10
+
+#define ENEMY_TYPE_CATERPILLAR 0
+#define NUM_ENEMY_TYPES 1
+
 
 
 #endif

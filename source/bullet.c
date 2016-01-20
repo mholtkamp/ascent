@@ -3,9 +3,6 @@
 #include "gamedata.h"
 #include "images/img_bullet.h"
 
-#define BULLET_HERO_PALETTE_BANK 1
-#define BULLET_ENEMY_PALETTE_BANK 2
-
 int arBulletSpriteXOffsets[NUM_BULLET_TYPES] = 
 {
     2 // Basic

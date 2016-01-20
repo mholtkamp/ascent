@@ -13,7 +13,8 @@ void game_data_initialize(GameData* pGameData)
         hero_initialize(&(pGameData->hero));
         pGameData->nPaused = 0;
         pGameData->nDelay  = 0;
-        
+        memset(pGameData->arBullets, 0, MAX_BULLETS * sizeof(Bullet));
+        memset(pGameData->arEnemies, 0, MAX_ENEMIES * sizeof(Enemy));
         pGameData->nBulletIndex = 0;
         pGameData->nHeroIndex = 0;
     }

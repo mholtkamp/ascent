@@ -151,8 +151,8 @@ void _hero_fire_bullet(Hero* pHero,
     
     Bullet* pBullet = &(pData->arBullets[nIndex]);
     bullet_initialize(pBullet, pHero->nBullet, nIndex);
-    pBullet->rect.fX = pHero->rect.fX + ((HERO_RECT_WIDTH/2) << FIXED_SHIFT);
-    pBullet->rect.fY = pHero->rect.fY + ((HERO_RECT_HEIGHT/2) << FIXED_SHIFT);
+    pBullet->rect.fX = pHero->rect.fX + ((HERO_RECT_WIDTH/2) << FIXED_SHIFT) - (pBullet->rect.fWidth >> 2);
+    pBullet->rect.fY = pHero->rect.fY + ((HERO_RECT_HEIGHT/2) << FIXED_SHIFT) - (pBullet->rect.fHeight >> 2);
     
     // Figure out what direction to shoot it
     switch (s_nDir)
