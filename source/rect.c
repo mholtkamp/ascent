@@ -15,15 +15,16 @@ void rect_initialize(Rect* pRect)
     }
 }
 
-void rect_move_with_bg_collision(Rect* pRect,
-                                 fixed fDX,
-                                 fixed fDY)
+int rect_move_with_bg_collision(Rect* pRect,
+                                fixed fDX,
+                                fixed fDY)
 {
     const unsigned short* pMap = (const unsigned short*) ADDR_ROOM_SBB;
     int nCollided  = 0;
     int nTileStart = 0;
     int nTileEnd   = 0;
     int nTile      = 0;
+    int nReturn    = 0;
     
     // Perform x movement first
     if (fDX > 0)
@@ -75,6 +76,8 @@ void rect_move_with_bg_collision(Rect* pRect,
     {
         pRect->fX += fDX;
     } 
+    
+    nReturn = nCollided;
     
     // Reset collision flag for vertical movement
     nCollided = 0;
@@ -128,6 +131,10 @@ void rect_move_with_bg_collision(Rect* pRect,
     {
         pRect->fY += fDY;
     } 
+    
+    nReturn = nCollided || nReturn;
+    
+    return nReturn;
 }
 
 int rect_overlap(Rect* pOne, Rect* pTwo)

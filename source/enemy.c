@@ -221,6 +221,7 @@ void enemy_update_caterpillar(Enemy* pEnemy,
     fixed fDX = 0;
     fixed fDY = 0;
     int nVert = 0;
+    int nCollided = 0;
     
     int nDirection    = *((int*) pEnemy->arData);
     int nRedirectTime = *((int*) pEnemy->arData + 4);
@@ -260,7 +261,7 @@ void enemy_update_caterpillar(Enemy* pEnemy,
     }
     
     // Move caterpillar
-    rect_move_with_bg_collision(&(pEnemy->rect), fDX, fDY);
+    nCollided = rect_move_with_bg_collision(&(pEnemy->rect), fDX, fDY);
     
     sprite_flip(pEnemy->nOBJ,
                 nDirection == DIR_RIGHT,
@@ -273,6 +274,13 @@ void enemy_update_caterpillar(Enemy* pEnemy,
                     pEnemy->nTile + nVert*4);
                 
     enemy_update_generic(pEnemy, pGameData);
+    
+    // If caterpillar collided with BG, reroll the direction
+    if (nCollided != 0)
+    {
+        nDirection = random() % 4;
+        *((int*) pEnemy->arData) = nDirection;
+    }
 }
 
 void reset_room_enemy_data(void* pGameData)
