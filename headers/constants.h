@@ -134,6 +134,7 @@
 #define BULLET_ENEMY_PALETTE_BANK 2
 #define ENEMY_PALETTE_BANK_START 3
 #define ENEMY_PALETTE_BANK_END 7  // includes bank 7
+#define DAMAGE_PALETTE_BANK 15
 
 // Important tile indices
 #define MUSHROOM_TILE_INDEX_0 18
@@ -158,6 +159,11 @@
 
 #define ENEMY_TYPE_CATERPILLAR 0
 #define NUM_ENEMY_TYPES 1
+
+
+// Other
+#define ENEMY_DAMAGE_COUNTER_START 5
+#define HERO_DAMAGE_COUNTER_START 60
 
 
 

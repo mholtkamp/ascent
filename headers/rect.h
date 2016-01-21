@@ -20,4 +20,6 @@ void rect_move_with_bg_collision(Rect* pRect,
                                  fixed fDX,
                                  fixed fDY);
 
+int rect_overlap(Rect* pOne, Rect* pTwo);
+
 #endif

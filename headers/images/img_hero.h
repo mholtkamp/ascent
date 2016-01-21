@@ -23,6 +23,7 @@ extern const unsigned short arHeroVertTiles[64];
 
 #define kingmanPalLen 32
 extern const unsigned short arHeroPalette[16];
+extern const unsigned short arDamagePalette[16];
 
 #endif // GRIT_KINGMAN_H
 

@@ -41,7 +41,8 @@ void hero_static_initialize(Hero* pHero)
                arHeroVertTiles); 
                
     // Load the hero palette into bank 0
-    load_palette_bank(PALETTE_TYPE_OBJ, 0, arHeroPalette);
+    load_palette_bank(PALETTE_TYPE_OBJ, HERO_PALETTE_BANK, arHeroPalette);
+    load_palette_bank(PALETTE_TYPE_OBJ, DAMAGE_PALETTE_BANK, arDamagePalette);
     
     sprite_enable(HERO_SPRITE_INDEX, 1);
     
@@ -133,6 +134,44 @@ void hero_update(Hero* pHero,
      {
         pHero->nAttackDelay--;
      }
+     
+     // Update damage counter for flashing + invulnerability
+     if (pHero->nDamageCounter > 0)
+     {
+        pHero->nDamageCounter--;
+        
+        if (pHero->nDamageCounter == 0)
+        {
+            sprite_set_palette(HERO_SPRITE_INDEX, HERO_PALETTE_BANK);
+        }
+        else
+        {
+            // Flash the palette
+            if (pHero->nDamageCounter % 8 >= 4)
+            {
+                sprite_set_palette(HERO_SPRITE_INDEX, HERO_PALETTE_BANK);
+            }
+            else
+            {
+                sprite_set_palette(HERO_SPRITE_INDEX, DAMAGE_PALETTE_BANK);
+            }
+        }
+     }
+}
+
+void hero_damage(Hero* pHero,
+                 int nDamage)
+{
+    if (pHero->nDamageCounter == 0)
+    {
+        pHero->nDamageCounter = HERO_DAMAGE_COUNTER_START;
+        pHero->nHealth -= nDamage;
+        
+        if (pHero->nHealth <= 0)
+        {
+            print("DEAD");
+        }
+    }
 }
 
 void _hero_fire_bullet(Hero* pHero,
@@ -153,6 +192,8 @@ void _hero_fire_bullet(Hero* pHero,
     bullet_initialize(pBullet, pHero->nBullet, nIndex);
     pBullet->rect.fX = pHero->rect.fX + ((HERO_RECT_WIDTH/2) << FIXED_SHIFT) - (pBullet->rect.fWidth >> 2);
     pBullet->rect.fY = pHero->rect.fY + ((HERO_RECT_HEIGHT/2) << FIXED_SHIFT) - (pBullet->rect.fHeight >> 2);
+    pBullet->nDamage = pHero->nDamage;
+    pBullet->nOwner  = BULLET_OWNER_HERO;
     
     // Figure out what direction to shoot it
     switch (s_nDir)

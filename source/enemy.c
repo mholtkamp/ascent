@@ -29,6 +29,8 @@ void enemy_initialize(Enemy* pEnemy,
     pEnemy->nTime  = 0;
     pEnemy->nOBJ   = ENEMY_OBJ_START_INDEX + nIndex;
     pEnemy->nTile  = 0;
+    pEnemy->nDamageCounter = 0;
+    pEnemy->nDamage = 1;
     memset(pEnemy->arData, 0, ENEMY_SCRATCH_DATA_SIZE);
     
     // Do specific enemy initialization
@@ -38,6 +40,7 @@ void enemy_initialize(Enemy* pEnemy,
         pEnemy->rect.fWidth = int_to_fixed(14);
         pEnemy->rect.fHeight = int_to_fixed(14);
         pEnemy->nHealth = 5;
+        pEnemy->nDamage = 1;
         pEnemy->update = &enemy_update_caterpillar;
         pEnemy->nSpriteOffsetX = 1;
         pEnemy->nSpriteOffsetY = 1;
@@ -145,7 +148,24 @@ void enemy_clear(Enemy*pEnemy,
     pEnemy->nTile  = 0;
     pEnemy->nSpriteOffsetX = 0;
     pEnemy->nSpriteOffsetY = 0;
+    pEnemy->nDamageCounter = 0;
+    pEnemy->nDamage = 1;
     memset(pEnemy->arData, 0, ENEMY_SCRATCH_DATA_SIZE);
+}
+
+void enemy_damage(Enemy* pEnemy,
+                  int nDamage)
+{
+    pEnemy->nHealth -= nDamage;
+    
+    if (pEnemy->nHealth <= 0)
+    {
+        enemy_kill(pEnemy);
+    }
+    else
+    {
+        pEnemy->nDamageCounter = ENEMY_DAMAGE_COUNTER_START;
+    }
 }
 
 void enemy_kill(Enemy* pEnemy)
@@ -157,10 +177,33 @@ void enemy_kill(Enemy* pEnemy)
 void enemy_update_generic(Enemy* pEnemy,
                           void* pGameData)
 {
+    GameData* pData = (GameData*) pGameData;
+    
+    // Update damage counter
+    if (pEnemy->nDamageCounter > 0)
+    {
+        pEnemy->nDamageCounter--;
+        
+        if (pEnemy->nDamageCounter == 0)
+        {
+            // Stop displaying alternate damage palette
+            sprite_set_palette(pEnemy->nOBJ, pEnemy->nPalette);
+        }
+        else
+        {
+            sprite_set_palette(pEnemy->nOBJ, DAMAGE_PALETTE_BANK);
+        }
+    }
     // Update update position
     sprite_set_position(pEnemy->nOBJ,
                         fixed_to_int(pEnemy->rect.fX) - pEnemy->nSpriteOffsetX,
                         fixed_to_int(pEnemy->rect.fY) - pEnemy->nSpriteOffsetY);
+                        
+    // Check collision with hero
+    if (rect_overlap(&(pEnemy->rect), &(pData->hero.rect)))
+    {
+        hero_damage(&(pData->hero), pEnemy->nDamage);
+    }
                         
     // Increment timer
     pEnemy->nTime++;
@@ -169,14 +212,15 @@ void enemy_update_generic(Enemy* pEnemy,
 void enemy_update_caterpillar(Enemy* pEnemy,
                               void* pGameData)
 {
-    static const fixed SPEED   = 2 << FIXED_SHIFT;
+    // SCRATCH DATA:
+    // (int) arData + 0 = nDirection
+    // (int) arData + 4 = nRedirectTime;
+    
+    static const fixed SPEED   = 1 << FIXED_SHIFT;
     
     fixed fDX = 0;
     fixed fDY = 0;
     int nVert = 0;
-    // SCRATCH DATA:
-    // (int) arData + 0 = nDirection
-    // (int) arData + 4 = nRedirectTime;
     
     int nDirection    = *((int*) pEnemy->arData);
     int nRedirectTime = *((int*) pEnemy->arData + 4);

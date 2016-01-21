@@ -129,3 +129,17 @@ void rect_move_with_bg_collision(Rect* pRect,
         pRect->fY += fDY;
     } 
 }
+
+int rect_overlap(Rect* pOne, Rect* pTwo)
+{
+    if (pOne->fX > pTwo->fX + pTwo->fWidth)
+        return 0;
+    if (pOne->fX + pOne->fWidth < pTwo->fX)
+        return 0;
+    if (pOne->fY > pTwo->fY + pTwo->fHeight)
+        return 0;
+    if (pOne->fY + pOne->fHeight < pTwo->fY)
+        return 0;
+        
+    return 1;
+}

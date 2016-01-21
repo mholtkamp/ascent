@@ -80,8 +80,11 @@ void bullet_initialize(Bullet* pBullet,
 void _bullet_basic_update(Bullet* pBullet,
                           void* pGameData)
 {
+    int i = 0;
     unsigned short* pMap = (unsigned short*) ADDR_ROOM_SBB;
     unsigned short* pTile = 0;
+    GameData* pData = (GameData*) pGameData;
+    Enemy* pEnemies = pData->arEnemies;
     
     //GameData* pData = = (GameData*) pGameData;
     int nTile = 0;
@@ -119,9 +122,26 @@ void _bullet_basic_update(Bullet* pBullet,
         return;
     }
     
-    // Check if bullet overlaps a hero
+    // Check if bullet overlaps an enemy
+    if (pBullet->nOwner == BULLET_OWNER_HERO)
+    {
+        for (i = 0; i < MAX_ENEMIES; i++)
+        {
+            if (pEnemies[i].nAlive != 0 &&
+                rect_overlap(&(pEnemies[i].rect), &(pBullet->rect)))
+            {
+                // Perform damage deduction
+                enemy_damage(&(pEnemies[i]), pBullet->nDamage);
+                bullet_kill(pBullet);
+                return;
+            }
+        }
+    }
+    // Of if it overlaps the hero
+    else
+    {
     
-    // OR check if bullet overlaps an enemy
+    }
     
     // Lastly update sprite
     sprite_set_position(pBullet->nOBJ,

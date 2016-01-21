@@ -300,7 +300,6 @@ void _game_load_room(GameData* pData)
         else
         {
             // Initialize the enemy
-            print_int(pEnemyMap[i*3]);
             enemy_initialize(&(pData->arEnemies[i]),
                              pEnemyMap[i*3],
                              i);
@@ -311,9 +310,6 @@ void _game_load_room(GameData* pData)
         }
         
         i++;
-        
-        //@@ DEBUG
-        print("ENEMY ADDED");
     }
     
     unsigned short* pMap = (unsigned short*) ADDR_ROOM_SBB;
