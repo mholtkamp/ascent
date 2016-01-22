@@ -48,7 +48,7 @@ int main()
     menu_initialize();
     
     int nGameOverTick = 0;
-    
+    int nTransTick    = 0;
 	// Game Loop
 	while(1)
 	{
@@ -59,11 +59,11 @@ int main()
         {
             menu_update(&gamedata);
         }
-        if (gamedata.nGameState == STATE_GAME)
+        else if (gamedata.nGameState == STATE_GAME)
         {
             game_update(&gamedata);
         }
-        if (gamedata.nGameState == STATE_GAME_OVER)
+        else if (gamedata.nGameState == STATE_GAME_OVER)
         {
             nGameOverTick++;
             
@@ -82,9 +82,20 @@ int main()
                 menu_initialize();
             }
         }
-        if (gamedata.nGameState == STATE_WIN)
+        else if (gamedata.nGameState == STATE_WIN)
         {
 
+        }
+        else if (gamedata.nGameState == STATE_FLOOR_TRANS)
+        {
+            nTransTick++;
+            
+            if (nTransTick >= 120)
+            {
+                nTransTick = 0;
+                gamedata.nGameState = STATE_GAME;
+                game_load_floor(&gamedata);
+            }
         }
 		
 	}

@@ -48,24 +48,10 @@ void hero_static_initialize(Hero* pHero)
     load_palette_bank(PALETTE_TYPE_OBJ, HERO_PALETTE_BANK, arHeroPalette);
     load_palette_bank(PALETTE_TYPE_OBJ, DAMAGE_PALETTE_BANK, arDamagePalette);
     
-    sprite_enable(HERO_SPRITE_INDEX, 1);
-    
-    sprite_initialize(HERO_SPRITE_INDEX,
-                      0,
-                      0,
-                      0,
-                      0,
-                      1,
-                      0,
-                      0,
-                      120,
-                      60,
-                      HERO_HORI_TILE_INDEX,
-                      1,
-                      0);
+    hero_enable_sprite(pHero);
                       
-    pHero->rect.fX = int_to_fixed(120);
-    pHero->rect.fY = int_to_fixed(60);
+    pHero->rect.fX = int_to_fixed(HERO_START_X);
+    pHero->rect.fY = int_to_fixed(HERO_START_Y);
 }
 
 void hero_initialize(Hero* pHero)
@@ -284,4 +270,23 @@ void _hero_fire_bullet(Hero* pHero,
     }
     
     pHero->nAttackDelay = pBullet->nDelay;
+}
+
+void hero_enable_sprite(Hero* pHero)
+{
+    sprite_enable(HERO_SPRITE_INDEX, 1);
+    
+    sprite_initialize(HERO_SPRITE_INDEX,
+                      0,
+                      0,
+                      0,
+                      0,
+                      1,
+                      0,
+                      0,
+                      120,
+                      60,
+                      HERO_HORI_TILE_INDEX,
+                      1,
+                      0);
 }

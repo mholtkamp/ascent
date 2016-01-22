@@ -164,7 +164,6 @@ void game_update(GameData* pData)
     {
         pData->nGameState = STATE_GAME_OVER;
         memset((unsigned short*) ADDR_ROOM_SBB, 0, SCREEN_BLOCK_SIZE);
-        memset((unsigned short*) ADDR_VRAM, 0, TILE_4_SIZE);
         clear_all_sprites();
         clear_text();
         text("GAME OVER", 10, 9);
@@ -200,6 +199,24 @@ void game_draw_hud(GameData* pData)
     pMap[25] = 0xf000 | ('X' - ' ');
     pMap[26] = 0xf000 | ((pHero->nGems/10 + 0x30) - ' ');
     pMap[27] = 0xf000 | ((pHero->nGems%10 + 0x30) - ' ');
+}
+
+void game_load_floor(GameData* pData)
+{
+    clear_text();
+    
+    // Set hero to center of room
+    pData->hero.rect.fX = int_to_fixed(HERO_START_X);
+    pData->hero.rect.fY = int_to_fixed(HERO_START_Y);
+    
+    // Enable hero OBJ sprite since it was
+    hero_enable_sprite(&(pData->hero));
+    
+    // Generate the floor
+    _game_generate_floor(pData);
+    
+    // recursively call _game_load_room to load the proper room
+    _game_load_room(pData);
 }
 
 void _game_generate_floor(GameData* pData)
@@ -415,6 +432,7 @@ void _game_attach_room(GameData* pData,
 void _game_load_room(GameData* pData)
 {
     int i = 0;
+    char arFloorNum[2] = {0,0};
     int nRand = 0;
     const short* pEnemyMap = 0;
     
@@ -428,11 +446,15 @@ void _game_load_room(GameData* pData)
         // Room is stairwell so incrememnt level counter
         pData->nLevel++;
         
-        // Generate the floor
-        _game_generate_floor(pData);
+        // Set the game state to hover on this transition state
+        pData->nGameState = STATE_FLOOR_TRANS;
         
-        // recursively call _game_load_room to load the proper room
-        _game_load_room(pData);
+        memset((unsigned short*) ADDR_ROOM_SBB, 0, SCREEN_BLOCK_SIZE);
+        clear_all_sprites();
+        clear_text();
+        text("FLOOR", 10, 9);
+        arFloorNum[0] = ((char) pData->nLevel) + 0x30;
+        text(arFloorNum, 16, 9);
         
         // Exit function
         return;

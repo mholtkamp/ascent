@@ -29,4 +29,6 @@ void hero_damage(Hero* pHero,
 void _hero_fire_bullet(Hero* pHero,
                        void* pGameData);
 
+void hero_enable_sprite(Hero* pHero);
+
 #endif

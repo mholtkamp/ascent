@@ -103,6 +103,7 @@
 #define STATE_GAME 1
 #define STATE_GAME_OVER 2
 #define STATE_WIN 3
+#define STATE_FLOOR_TRANS 4
 
 // Floor constants
 #define FLOOR_WIDTH 10
@@ -150,9 +151,12 @@
 #define WALL_TILE_INDEX 20
 #define OPEN_DOOR_TILE_INDEX 12
 #define STAIRS_TILE_INDEX 11
-#define DROP_TILE_START_INDEX 64 //(in CBB1)
+#define DROP_TILE_START_INDEX 128 //(in CBB1)
 
 // Hero
+#define HERO_START_X 120
+#define HERO_START_Y 60
+
 #define HERO_HORI_TILE_INDEX 0
 #define HERO_VERT_TILE_INDEX 4
 #define HERO_DIAG_TILE_INDEX 8
