@@ -19,6 +19,9 @@ void menu_initialize()
     // load map into last screen entry
     load_map(31, arTitleMap);
     
+    // clear any text left over from game over screen/ win screen
+    clear_text();
+    
     // display text to say press start
     text("PRESS START",9,12);
 }

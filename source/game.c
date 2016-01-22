@@ -158,6 +158,17 @@ void game_update(GameData* pData)
             _game_load_room(pData);
         }
     }
+    
+    // Check for gameover
+    if (pData->hero.nHealth <= 0)
+    {
+        pData->nGameState = STATE_GAME_OVER;
+        memset((unsigned short*) ADDR_ROOM_SBB, 0, SCREEN_BLOCK_SIZE);
+        memset((unsigned short*) ADDR_VRAM, 0, TILE_4_SIZE);
+        clear_all_sprites();
+        clear_text();
+        text("GAME OVER", 10, 10);
+    }
 }
 
 void game_draw_hud(GameData* pData)

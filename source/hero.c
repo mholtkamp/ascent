@@ -75,6 +75,7 @@ void hero_initialize(Hero* pHero)
         pHero->nSpeed       = HERO_STARTING_SPEED;
         pHero->nAttackDelay = BULLET_BASIC_ATTACK_DELAY;
         pHero->nBullet      = BULLET_TYPE_BASIC;
+        pHero->nDamageCounter = 0;
         
         pHero->rect.fX      = 0;
         pHero->rect.fY      = 0;
@@ -166,11 +167,6 @@ void hero_damage(Hero* pHero,
     {
         pHero->nDamageCounter = HERO_DAMAGE_COUNTER_START;
         pHero->nHealth -= nDamage;
-        
-        if (pHero->nHealth <= 0)
-        {
-            print("DEAD");
-        }
     }
 }
 

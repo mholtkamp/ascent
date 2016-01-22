@@ -101,6 +101,8 @@
 // Game States
 #define STATE_MENU 0
 #define STATE_GAME 1
+#define STATE_GAME_OVER 2
+#define STATE_WIN 3
 
 // Floor constants
 #define FLOOR_WIDTH 10

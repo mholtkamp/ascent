@@ -47,6 +47,8 @@ int main()
                           
     menu_initialize();
     
+    int nGameOverTick = 0;
+    
 	// Game Loop
 	while(1)
 	{
@@ -60,6 +62,29 @@ int main()
         if (gamedata.nGameState == STATE_GAME)
         {
             game_update(&gamedata);
+        }
+        if (gamedata.nGameState == STATE_GAME_OVER)
+        {
+            nGameOverTick++;
+            
+            // After two seconds, set state back to menu state
+            if (nGameOverTick >= 120)
+            {
+                // Clear this variable for the next time that the 
+                // game goes into game over state
+                nGameOverTick = 0;
+                
+                // Switch state to the menu state
+                gamedata.nGameState = STATE_MENU;
+                
+                // And make sure the graphics are set up to display
+                // the title/menu screen
+                menu_initialize();
+            }
+        }
+        if (gamedata.nGameState == STATE_WIN)
+        {
+
         }
 		
 	}
