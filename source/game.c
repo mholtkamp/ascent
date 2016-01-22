@@ -167,7 +167,7 @@ void game_update(GameData* pData)
         memset((unsigned short*) ADDR_VRAM, 0, TILE_4_SIZE);
         clear_all_sprites();
         clear_text();
-        text("GAME OVER", 10, 10);
+        text("GAME OVER", 10, 9);
     }
 }
 
@@ -335,9 +335,81 @@ void _game_generate_floor(GameData* pData)
         }
     }
     
+    // Attach Extra rooms
+    
+    // Add the stairwell last
+    _game_attach_room(pData,
+                      ROOM_STAIRS,
+                      nNumRooms,
+                      arRoomListX,
+                      arRoomListY);
+    
     // Set the current room in the gamedata
     pData->nRoomX = arRoomListX[0];
     pData->nRoomY = arRoomListY[0];
+}
+
+void _game_attach_room(GameData* pData,
+                       char  cRoomNum,
+                       int   nNumRooms,
+                       int* arRoomListX,
+                       int* arRoomListY)
+{
+    int i = random() % nNumRooms;
+    int nDir = random() % 4;
+    int nRoomCount = 0;
+    int nX = 0;
+    int nY = 0;
+    
+    while(nRoomCount < nNumRooms)
+    {
+        nX = arRoomListX[i];
+        nY = arRoomListY[i];
+        
+        switch (nDir)
+        {
+        case DIR_RIGHT:
+            ++nX;
+            break;
+        case DIR_DOWN:
+            ++nY;
+            break;
+        case DIR_LEFT:
+            --nX;
+            break;
+        case DIR_UP:
+            --nY;
+            break;
+        default:
+            break;
+        }
+        
+        if (nX >= 0           &&
+            nX < FLOOR_WIDTH  &&
+            nY >= 0           &&
+            nY < FLOOR_HEIGHT &&
+            pData->arFloor[nX][nY] == 0)
+         {
+            pData->arFloor[nX][nY] = cRoomNum;
+            break;
+         }
+         
+         nRoomCount++;
+         i++;
+         
+         // Wrap the room index back to 0 if over # of rooms.
+         if (i >= nRoomCount)
+         {
+            i = 0;
+         }
+    }
+    
+    // Failed to attach room
+    if (nRoomCount == nNumRooms)
+    {
+        // Just set the last room in the list to the stairs room
+        pData->arFloor[arRoomListX[nNumRooms - 1]][arRoomListY[nNumRooms - 1]] = cRoomNum;
+    }
 }
 
 void _game_load_room(GameData* pData)
@@ -348,6 +420,23 @@ void _game_load_room(GameData* pData)
     
     // Get the room number/ID.
     int nRoomNumber = (int) pData->arFloor[pData->nRoomX][pData->nRoomY];
+    
+    // Check if the room is actually the stairwell
+    // to the next floor.
+    if (nRoomNumber == ROOM_STAIRS)
+    {
+        // Room is stairwell so incrememnt level counter
+        pData->nLevel++;
+        
+        // Generate the floor
+        _game_generate_floor(pData);
+        
+        // recursively call _game_load_room to load the proper room
+        _game_load_room(pData);
+        
+        // Exit function
+        return;
+    }
     
     // Clear static enemy data
     reset_room_enemy_data(pData);
@@ -432,44 +521,65 @@ void _game_load_room(GameData* pData)
 void _game_clear_room(GameData* pData)
 {
     unsigned short* pMap = (unsigned short*) ADDR_ROOM_SBB;
-
+    int nTileIndex = OPEN_DOOR_TILE_INDEX;
+    
     if (pData->nRoomX - 1 >= 0 &&
         pData->arFloor[pData->nRoomX - 1][pData->nRoomY] != 0)
     {
+        if(pData->arFloor[pData->nRoomX - 1][pData->nRoomY] == ROOM_STAIRS)
+            nTileIndex = STAIRS_TILE_INDEX;
+        else
+            nTileIndex = OPEN_DOOR_TILE_INDEX;
+        
         // Open left doorway
-        pMap[8  * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[9  * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[10 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[11 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[8  * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[9  * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[10 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[11 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
     }
     
     if (pData->nRoomX + 1 < FLOOR_WIDTH &&
         pData->arFloor[pData->nRoomX + 1][pData->nRoomY] != 0)
     {
+        if(pData->arFloor[pData->nRoomX + 1][pData->nRoomY] == ROOM_STAIRS)
+            nTileIndex = STAIRS_TILE_INDEX;
+        else
+            nTileIndex = OPEN_DOOR_TILE_INDEX;
+    
         // Open right doorway
-        pMap[29 + 8 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[29 + 9 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[29 + 10 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[29 + 11 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[29 + 8 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[29 + 9 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[29 + 10 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[29 + 11 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
     }
     
     if (pData->nRoomY - 1 >= 0 &&
         pData->arFloor[pData->nRoomX][pData->nRoomY - 1] != 0)
     {
+        if(pData->arFloor[pData->nRoomX][pData->nRoomY - 1] == ROOM_STAIRS)
+            nTileIndex = STAIRS_TILE_INDEX;
+        else
+            nTileIndex = OPEN_DOOR_TILE_INDEX;
+        
         // Open top doorway
-        pMap[13] = OPEN_DOOR_TILE_INDEX;
-        pMap[14] = OPEN_DOOR_TILE_INDEX;
-        pMap[15] = OPEN_DOOR_TILE_INDEX;
-        pMap[16] = OPEN_DOOR_TILE_INDEX;
+        pMap[13] = nTileIndex;
+        pMap[14] = nTileIndex;
+        pMap[15] = nTileIndex;
+        pMap[16] = nTileIndex;
     }
     if (pData->nRoomY + 1 < FLOOR_HEIGHT &&
         pData->arFloor[pData->nRoomX][pData->nRoomY + 1] != 0)
     {
+        if(pData->arFloor[pData->nRoomX][pData->nRoomY + 1] == ROOM_STAIRS)
+            nTileIndex = STAIRS_TILE_INDEX;
+        else
+            nTileIndex = OPEN_DOOR_TILE_INDEX;
+        
         // Open bottom doorway
-        pMap[13 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[14 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[15 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
-        pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = OPEN_DOOR_TILE_INDEX;
+        pMap[13 + 19 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[14 + 19 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[15 + 19 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
+        pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
     }
     
     pData->arFloor[pData->nRoomX][pData->nRoomY] |= ROOM_CLEARED_FLAG;

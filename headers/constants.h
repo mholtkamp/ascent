@@ -149,6 +149,7 @@
 #define GROUND_TILE_INDEX 3
 #define WALL_TILE_INDEX 20
 #define OPEN_DOOR_TILE_INDEX 12
+#define STAIRS_TILE_INDEX 11
 #define DROP_TILE_START_INDEX 64 //(in CBB1)
 
 // Hero
@@ -198,6 +199,11 @@
 #define ENEMY_DAMAGE_COUNTER_START 5
 #define HERO_DAMAGE_COUNTER_START 60
 
+// Special Room IDs
+#define ROOM_STAIRS   0x41
+#define ROOM_ITEM     0x42
+#define ROOM_SHOP     0x43
+#define ROOM_FOUNTAIN 0x44
 
 
 #endif

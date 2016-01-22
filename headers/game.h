@@ -9,6 +9,12 @@ void game_update(GameData* pData);
 
 void game_draw_hud(GameData* pData);
 
+void _game_attach_room(GameData* pData,
+                       char  cRoomNum,
+                       int   nNumRooms,
+                       int* arRoomListX,
+                       int* arRoomListY);
+                       
 void _game_generate_floor(GameData* pData);
 
 void _game_load_room(GameData* pData);
