@@ -20,6 +20,7 @@
 #define kingmanTilesLen 128
 extern const unsigned short arHeroHoriTiles[64];
 extern const unsigned short arHeroVertTiles[64];
+extern const unsigned short arHeroDiagTiles[64];
 
 #define kingmanPalLen 32
 extern const unsigned short arHeroPalette[16];

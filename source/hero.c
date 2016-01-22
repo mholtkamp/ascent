@@ -9,10 +9,10 @@
 
 #define HERO_MOVESPEED 1
 
-#define HERO_DIR_RIGHT 0
-#define HERO_DIR_DOWN  1
-#define HERO_DIR_LEFT  2
-#define HERO_DIR_UP    3
+#define HERO_DIR_RIGHT 0x01
+#define HERO_DIR_LEFT  0x02
+#define HERO_DIR_DOWN  0x04
+#define HERO_DIR_UP    0x08
 
 static int s_nDir = 0;
 static fixed s_fMoveSpeed[HERO_MAX_SPEED] = {0, 0, 0, 0,
@@ -31,14 +31,18 @@ void hero_static_initialize(Hero* pHero)
     s_fMoveSpeed[7] = float_to_fixed(2.8f);
     
     // Load the hero OBJ tiles
-    load_tiles(4,                    // CBB 4
+    load_tiles(SPRITE_CBB,           // CBB 4
                HERO_HORI_TILE_INDEX, // 0 offset
                4,                    // 4 tiles to load
                arHeroHoriTiles);
-    load_tiles(4,                     // CBB 4
+    load_tiles(SPRITE_CBB,            // CBB 4
                HERO_VERT_TILE_INDEX,  // Offset is 4 tiles in
                4,                     // 4 tiles to load
-               arHeroVertTiles); 
+               arHeroVertTiles);
+    load_tiles(SPRITE_CBB,            // CBB 4
+               HERO_DIAG_TILE_INDEX,  // offset is 8 tiles in 
+               4,                     // load 4 tiles
+               arHeroDiagTiles);
                
     // Load the hero palette into bank 0
     load_palette_bank(PALETTE_TYPE_OBJ, HERO_PALETTE_BANK, arHeroPalette);
@@ -87,6 +91,11 @@ void hero_initialize(Hero* pHero)
 void hero_update(Hero* pHero,
                  void* pGameData)
 {   
+    int nKeyDir  = 0;
+    int nTile = 0;
+    int nFlipX = 0;
+    int nFlipY = 0;
+    
     fixed fDX = 0;
     fixed fDY = 0;
     
@@ -94,32 +103,79 @@ void hero_update(Hero* pHero,
     if (key_down(KEY_RIGHT))
     {
         fDX = s_fMoveSpeed[pHero->nSpeed];
-        s_nDir = HERO_DIR_RIGHT;
+        nKeyDir |= HERO_DIR_RIGHT;
     }
-    else if (key_down(KEY_LEFT))
+    if (key_down(KEY_LEFT))
     {
         fDX = -s_fMoveSpeed[pHero->nSpeed];
-        s_nDir = HERO_DIR_LEFT;
+        nKeyDir |= HERO_DIR_LEFT;
     }
-    else if (key_down(KEY_UP))
+    if (key_down(KEY_UP))
     {
         fDY = -s_fMoveSpeed[pHero->nSpeed];
-        s_nDir = HERO_DIR_UP;
+        nKeyDir |= HERO_DIR_UP;
     }
-    else if (key_down(KEY_DOWN))
+    if (key_down(KEY_DOWN))
     {
         fDY = s_fMoveSpeed[pHero->nSpeed];
-        s_nDir = HERO_DIR_DOWN;
+        nKeyDir |= HERO_DIR_DOWN;
     }
     
-    rect_move_with_bg_collision(&(pHero->rect), fDX, fDY);
-
+    if (nKeyDir != 0 &&
+        !key_down(KEY_R))
+    {
+        s_nDir   = nKeyDir;
+    }
+    
+    // Update sprite based on s_nDir
+    switch(s_nDir)
+    {
+    case HERO_DIR_RIGHT:
+        nTile  = HERO_HORI_TILE_INDEX;
+        break;
+    case HERO_DIR_DOWN:
+        nTile  = HERO_VERT_TILE_INDEX;
+        nFlipY = 1;
+        break;
+    case HERO_DIR_LEFT:
+        nTile  = HERO_HORI_TILE_INDEX;
+        nFlipX = 1;
+        break;
+    case HERO_DIR_UP:
+        nTile = HERO_VERT_TILE_INDEX;
+        break;
+    case HERO_DIR_DOWN | HERO_DIR_RIGHT:
+        nTile  = HERO_DIAG_TILE_INDEX;
+        nFlipY = 1;
+        break;
+    case HERO_DIR_DOWN | HERO_DIR_LEFT:
+        nTile  = HERO_DIAG_TILE_INDEX;
+        nFlipX = 1;
+        nFlipY = 1;
+        break;
+    case HERO_DIR_UP | HERO_DIR_LEFT:
+        nTile  = HERO_DIAG_TILE_INDEX;
+        nFlipX = 1;
+        break;
+    case HERO_DIR_UP | HERO_DIR_RIGHT:
+        nTile  = HERO_DIAG_TILE_INDEX;
+        break;
+    default:
+        break;
+    }
+    
+    // Only move is L isn't held
+    if (!key_down(KEY_L))
+    {
+        rect_move_with_bg_collision(&(pHero->rect), fDX, fDY);
+    }
+    
     sprite_set_tile(HERO_SPRITE_INDEX, 
-                    HERO_VERT_TILE_INDEX * ((s_nDir == HERO_DIR_DOWN) || (s_nDir == HERO_DIR_UP)));
+                    nTile);
                     
     sprite_flip(HERO_SPRITE_INDEX, 
-                s_nDir == HERO_DIR_LEFT,
-                s_nDir == HERO_DIR_DOWN);
+                nFlipX,
+                nFlipY);
     
     sprite_set_position(HERO_SPRITE_INDEX, 
                         fixed_to_int(pHero->rect.fX) - HERO_SPRITE_X_OFF, 
@@ -206,11 +262,26 @@ void _hero_fire_bullet(Hero* pHero,
     case HERO_DIR_UP:
         pBullet->fYVel = -arBulletSpeed[pHero->nBullet];
         break;
+    case HERO_DIR_DOWN | HERO_DIR_RIGHT:
+        pBullet->fXVel = arBulletSpeed[pHero->nBullet];
+        pBullet->fYVel = arBulletSpeed[pHero->nBullet];
+        break;
+    case HERO_DIR_DOWN | HERO_DIR_LEFT:
+        pBullet->fXVel = -arBulletSpeed[pHero->nBullet];
+        pBullet->fYVel = arBulletSpeed[pHero->nBullet];
+        break;
+     case HERO_DIR_UP | HERO_DIR_LEFT:
+        pBullet->fXVel = -arBulletSpeed[pHero->nBullet];
+        pBullet->fYVel = -arBulletSpeed[pHero->nBullet];
+        break;
+     case HERO_DIR_UP | HERO_DIR_RIGHT:
+        pBullet->fXVel = arBulletSpeed[pHero->nBullet];
+        pBullet->fYVel = -arBulletSpeed[pHero->nBullet];
+        break;
     default:
         pBullet->fXVel = arBulletSpeed[pHero->nBullet];
         break;
     }
-    
     
     pHero->nAttackDelay = pBullet->nDelay;
 }
