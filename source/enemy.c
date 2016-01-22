@@ -137,10 +137,10 @@ void enemy_initialize(Enemy* pEnemy,
                       pEnemy->nPalette);
 }
 
-void enemy_clear(Enemy*pEnemy,
+void enemy_clear(Enemy* pEnemy,
                  int nIndex)
 {
-    pEnemy->nType = 0;
+    pEnemy->nType  = 0;
     rect_initialize(&(pEnemy->rect));
     pEnemy->nAlive = 0;
     pEnemy->nTime  = 0;

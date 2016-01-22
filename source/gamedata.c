@@ -16,6 +16,5 @@ void game_data_initialize(GameData* pGameData)
         memset(pGameData->arBullets, 0, MAX_BULLETS * sizeof(Bullet));
         memset(pGameData->arEnemies, 0, MAX_ENEMIES * sizeof(Enemy));
         pGameData->nBulletIndex = 0;
-        pGameData->nHeroIndex = 0;
     }
 }

@@ -88,6 +88,7 @@
 #define VAKKI_NUM_GLYPHS 64
 #define VAKKI_SIZE 2048
 #define ASCII_OFFSET 0x20
+#define TEXT_CBB 1
 #define TEXT_SCREENBLOCK 16
 
 #define SCREEN_ENTRIES_PER_LINE 32
@@ -125,6 +126,7 @@
 #define MAX_BULLETS 12
 
 // Tiles
+#define BG_CBB 0
 #define SPRITE_CBB 4
 #define ENEMY_TILE_START_INDEX 32
 
@@ -134,6 +136,7 @@
 #define BULLET_ENEMY_PALETTE_BANK 2
 #define ENEMY_PALETTE_BANK_START 3
 #define ENEMY_PALETTE_BANK_END 7  // includes bank 7
+#define DROP_PALETTE_BANK 8
 #define DAMAGE_PALETTE_BANK 15
 
 // Important tile indices
@@ -144,6 +147,26 @@
 #define GROUND_TILE_INDEX 3
 #define WALL_TILE_INDEX 20
 #define OPEN_DOOR_TILE_INDEX 12
+#define DROP_TILE_START_INDEX 64 //(in CBB1)
+
+// Hero
+#define HERO_HORI_TILE_INDEX 0
+#define HERO_VERT_TILE_INDEX 4
+
+#define HERO_STARTING_HEALTH 3
+#define HERO_STARTING_GEMS   3
+#define HERO_STARTING_DAMAGE 3
+#define HERO_STARTING_SPEED  1
+
+#define HERO_MAX_HEALTH 8
+#define HERO_MAX_GEMS   99
+#define HERO_MAX_DAMAGE 8
+#define HERO_MAX_SPEED  8
+
+#define HERO_RECT_WIDTH  14
+#define HERO_RECT_HEIGHT 14
+#define HERO_SPRITE_X_OFF 1
+#define HERO_SPRITE_Y_OFF 1
 
 // Enemies
 #define MAX_ENEMY_TYPES_PER_ROOM 5
@@ -160,6 +183,13 @@
 #define ENEMY_TYPE_CATERPILLAR 0
 #define NUM_ENEMY_TYPES 1
 
+// Drops
+
+#define DROP_TYPE_GEM   0
+#define DROP_TYPE_HEART 1
+#define DROP_TYPE_BOMB  2
+#define DROP_TYPE_KEY   3
+#define NUM_DROP_TYPES 4
 
 // Other
 #define ENEMY_DAMAGE_COUNTER_START 5

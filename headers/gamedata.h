@@ -19,7 +19,6 @@ typedef struct GameData
     Bullet arBullets[MAX_BULLETS];
     Enemy arEnemies[MAX_ENEMIES];
     int nBulletIndex;
-    int nHeroIndex;
 } GameData;
 
 void game_data_initialize(GameData* pGameData);

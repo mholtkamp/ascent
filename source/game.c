@@ -4,6 +4,7 @@
 #include "images/img_rooms.h"
 #include "images/img_hero.h"
 #include "images/img_bullet.h"
+#include "images/img_drops.h"
 
 
 #define DIR_RIGHT 0
@@ -16,17 +17,43 @@ void game_initialize(GameData* pData)
 {
     int i = 0;
     
-    print("IN-GAME");
-    
     // Load palette for room backgrounds
     load_palette_bank(PALETTE_TYPE_BG, 0, arRoomPalette);
     
     // Load tiles for room backgrounds
-    load_tiles(0, // CBB 0
+    load_tiles(BG_CBB, // CBB 0
                0, // 0 offset
                32, // 32 tiles in BG
                arRoomTiles);
                
+    // Load tiles for drops
+    for (i = 0; i < NUM_DROP_TYPES; i++)
+    {
+        // Load tiles in BG tile space (CBB 0) so that
+        // the tiles can be used in the UI
+        load_tiles(TEXT_CBB, // CBB 1
+                   arDropTileIndices[i], // place to start loading tiles
+                   1,
+                   arDropTiles[i]);
+        
+        // Load the same tiles into sprite tile space (CBB 4) so that
+        // the drops can be rendered as OBJs on the room floor when dropped by
+        // enemies / chests.
+        load_tiles(SPRITE_CBB,
+                   arDropTileIndices[i],
+                   1,
+                   arDropTiles[i]);
+                   
+        // Load the drop color palette
+        load_palette_bank(PALETTE_TYPE_BG,
+                          DROP_PALETTE_BANK,
+                          arDropPalette);
+        
+        load_palette_bank(PALETTE_TYPE_OBJ,
+                          DROP_PALETTE_BANK,
+                          arDropPalette);
+    }
+    
     _game_generate_floor(pData);
     
     // Load the starting room
@@ -43,6 +70,7 @@ void game_initialize(GameData* pData)
     {
         enemy_clear(&(pData->arEnemies[i]), i);
     }
+    
 }
 
 void game_update(GameData* pData)
@@ -52,6 +80,8 @@ void game_update(GameData* pData)
     Bullet* pBullets = pData->arBullets;
     Enemy* pEnemies = pData->arEnemies;
     
+     game_draw_hud(pData);
+     
     // Do not update game, if the game is delayed or paused
     if (pData->nDelay > 0)
     {
@@ -128,6 +158,37 @@ void game_update(GameData* pData)
             _game_load_room(pData);
         }
     }
+}
+
+void game_draw_hud(GameData* pData)
+{
+    int i = 0;
+    Hero* pHero = &(pData->hero);
+    
+    // The HUD (for now) is drawing on the text SBB.
+    // Might move to BG2 if this is a problem
+    unsigned short* pMap = (unsigned short*) (0x06000000 + TEXT_SCREENBLOCK * 0x0800);
+    
+    // Draw hearts
+    for (i = 1; i < HERO_MAX_HEALTH; i++)
+    {
+        if (i <= pHero->nHealth)
+        {
+            // Draw heart
+            pMap[0 + i] = (DROP_PALETTE_BANK << 12) | arDropTileIndices[DROP_TYPE_HEART];
+        }
+        else
+        {
+            // Draw space
+            pMap[0 + i] = 0;
+        }
+    }
+    
+    // Draw Gems
+    pMap[24] = (DROP_PALETTE_BANK << 12) | arDropTileIndices[DROP_TYPE_GEM];
+    pMap[25] = 0xf000 | ('X' - ' ');
+    pMap[26] = 0xf000 | ((pHero->nGems/10 + 0x30) - ' ');
+    pMap[27] = 0xf000 | ((pHero->nGems%10 + 0x30) - ' ');
 }
 
 void _game_generate_floor(GameData* pData)

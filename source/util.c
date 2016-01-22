@@ -478,7 +478,7 @@ void print_int(int nInt)
 void text(const char* pStr,
           int nX,
           int nY)
-{
+{   
     int i       = 0;
     int nStrlen = strlen(pStr);
     
