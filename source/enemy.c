@@ -52,9 +52,25 @@ void enemy_initialize(Enemy* pEnemy,
         nSize        = SIZE_16x16;
         nShape       = SHAPE_16x16;
         break;
+    case ENEMY_TYPE_PIXIE:
+        pEnemy->rect.fWidth  = int_to_fixed(8);
+        pEnemy->rect.fHeight = int_to_fixed(8);
+        pEnemy->nHealth = 8;
+        pEnemy->nDamage = 1;
+        pEnemy->update = &enemy_update_pixie;
+        pEnemy->nSpriteOffsetX = 4;
+        pEnemy->nSpriteOffsetY = 4;
+        
+        // Graphics
+        nTileCount   = 8;
+        pTileData    = (unsigned short*) arEnemyPixieTiles;
+        pPaletteData = (unsigned short*) arEnemyPixiePalette;
+        nSize        = SIZE_16x16;
+        nShape       = SHAPE_16x16;
     default:
         break;
     }
+    
     
     // Figure out if graphics data needs to be loaded...
     for (i = 0; i < MAX_ENEMY_TYPES_PER_ROOM; i++)
@@ -214,7 +230,7 @@ void enemy_update_caterpillar(Enemy* pEnemy,
 {
     // SCRATCH DATA:
     // (int) arData + 0 = nDirection
-    // (int) arData + 4 = nRedirectTime;
+    // (int) arData + 1 = nRedirectTime;
     
     static const fixed SPEED   = 1 << FIXED_SHIFT;
     
@@ -223,8 +239,8 @@ void enemy_update_caterpillar(Enemy* pEnemy,
     int nVert = 0;
     int nCollided = 0;
     
-    int nDirection    = *((int*) pEnemy->arData);
-    int nRedirectTime = *((int*) pEnemy->arData + 4);
+    int nDirection    = *(pEnemy->arData);
+    int nRedirectTime = *(pEnemy->arData + 1);
     
     if (pEnemy->nTime         == 0 ||
         pEnemy->nTime         == nRedirectTime)
@@ -281,6 +297,71 @@ void enemy_update_caterpillar(Enemy* pEnemy,
         nDirection = random() % 4;
         *((int*) pEnemy->arData) = nDirection;
     }
+}
+
+void enemy_update_pixie(Enemy* pEnemy,
+                        void* pGameData)
+{
+    // SCRATCH DATA:
+    // (int)   arData + 0 = nShootTime;
+    // (int)   arData + 1 = nRedirectTime;
+    // (fixed) arData + 2 = fMoveTargetX;
+    // (fixed) arData + 3 = fMoveTargetY;
+    
+    static fixed SPEED = 0x00008000;
+    GameData* pData = (GameData*) pGameData;
+    fixed fDX = 0;
+    fixed fDY = 0;
+    
+    // Read scratch data
+    int   nShootTime    = *(pEnemy->arData);
+    int   nRedirectTime = *(pEnemy->arData + 1);
+    fixed fMoveTargetX  = (fixed) *(pEnemy->arData + 2);
+    fixed fMoveTargetY  = (fixed) *(pEnemy->arData + 3);
+    
+    
+    // If it is time to redirect, then find a new target location
+    if (pEnemy->nTime == 0 ||
+        pEnemy->nTime == nRedirectTime)
+    {
+        nRedirectTime += 60 + random() % 50;
+        
+        fMoveTargetX = pData->hero.rect.fX + int_to_fixed(-40 + random() % 80);
+        fMoveTargetY = pData->hero.rect.fY + int_to_fixed(-40 + random() % 80);
+    }
+    
+    // Move towards target location
+    fDX = fMoveTargetX - pEnemy->rect.fX;
+    fDY = fMoveTargetY - pEnemy->rect.fY;
+    
+    if (fDX > int_to_fixed(1))
+    {
+        pEnemy->rect.fX += SPEED;
+    }
+    else if (fDX < int_to_fixed(-1))
+    {
+        pEnemy->rect.fX -= SPEED;
+    }
+    
+    if (fDY > int_to_fixed(1))
+    {
+        pEnemy->rect.fY += SPEED;
+    }
+    else if (fDY < int_to_fixed(-1))
+    {
+        pEnemy->rect.fY -= SPEED;
+    }
+    
+    sprite_set_tile(pEnemy->nOBJ,
+                    pEnemy->nTile + 4*((pEnemy->nTime & 0x10) != 0));
+    
+    // Write back scratch data
+    *(pEnemy->arData)              = nShootTime;
+    *(pEnemy->arData + 1)          = nRedirectTime;
+    *((fixed*) pEnemy->arData + 2) = fMoveTargetX;
+    *((fixed*) pEnemy->arData + 3) = fMoveTargetY;
+    
+    enemy_update_generic(pEnemy, pGameData);
 }
 
 void reset_room_enemy_data(void* pGameData)

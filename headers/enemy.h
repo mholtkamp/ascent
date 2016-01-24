@@ -38,6 +38,9 @@ void enemy_update_generic(Enemy* pEnemy,
                           
 void enemy_update_caterpillar(Enemy* pEnemy,
                               void* pGameData);
+
+void enemy_update_pixie(Enemy* pEnemy,
+                        void* pGameData);
                    
 void load_all_enemy_palettes(void* pGameData);
 

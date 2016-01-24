@@ -190,7 +190,8 @@
 
 
 #define ENEMY_TYPE_CATERPILLAR 0
-#define NUM_ENEMY_TYPES 1
+#define ENEMY_TYPE_PIXIE 1
+#define NUM_ENEMY_TYPES 2
 
 // Drops
 
