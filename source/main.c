@@ -49,6 +49,7 @@ int main()
     
     int nGameOverTick = 0;
     int nTransTick    = 0;
+    
 	// Game Loop
 	while(1)
 	{
@@ -84,7 +85,7 @@ int main()
         }
         else if (gamedata.nGameState == STATE_WIN)
         {
-
+            // Do nothing. Require reset.
         }
         else if (gamedata.nGameState == STATE_FLOOR_TRANS)
         {

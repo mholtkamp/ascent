@@ -377,6 +377,41 @@ void _game_attach_room(GameData* pData,
     int nRoomCount = 0;
     int nX = 0;
     int nY = 0;
+    int nDistX = 0;
+    int nDistY = 0;
+    int nMaxDist = 0;
+    
+    // First, check if stairs are being added.
+    if (cRoomNum == ROOM_STAIRS)
+    {
+        // We want to add stairs as far away from starting room as possible.
+        for (i = 1; i < nNumRooms; i++)
+        {
+            // Find out X and Y distance in units of rooms
+            nDistX = arRoomListX[i] - arRoomListX[0];
+            nDistY = arRoomListY[i] - arRoomListY[0];
+            
+            // Get absolute values
+            if (nDistX < 0)
+                nDistX *= -1;
+            if (nDistY < 0)
+                nDistY *= -1;
+            
+            // If this room is farthest away from starting room,
+            // then set the new max dist and save the X and Y coords
+            if (nDistX + nDistY > nMaxDist)
+            {
+                nMaxDist = nDistX + nDistY;
+                nX = arRoomListX[i];
+                nY = arRoomListY[i];
+            }
+        }
+        
+        // Set the farthest room to ROOM_STAIRS (overwriting what it was)
+        pData->arFloor[nX][nY] = ROOM_STAIRS;
+        
+        return;
+    }
     
     while(nRoomCount < nNumRooms)
     {
@@ -446,15 +481,32 @@ void _game_load_room(GameData* pData)
         // Room is stairwell so incrememnt level counter
         pData->nLevel++;
         
-        // Set the game state to hover on this transition state
-        pData->nGameState = STATE_FLOOR_TRANS;
-        
-        memset((unsigned short*) ADDR_ROOM_SBB, 0, SCREEN_BLOCK_SIZE);
-        clear_all_sprites();
-        clear_text();
-        text("FLOOR", 10, 9);
-        arFloorNum[0] = ((char) pData->nLevel) + 0x30;
-        text(arFloorNum, 16, 9);
+        if (pData->nLevel <= NUM_FLOORS)
+        {
+            // Set the game state to hover on this transition state
+            pData->nGameState = STATE_FLOOR_TRANS;
+            
+            memset((unsigned short*) ADDR_ROOM_SBB, 0, SCREEN_BLOCK_SIZE);
+            clear_all_sprites();
+            clear_text();
+            text("FLOOR", 10, 9);
+            arFloorNum[0] = ((char) pData->nLevel) + 0x30;
+            text(arFloorNum, 16, 9);
+        }
+        else
+        {
+            // Set the game state to hover on this transition state
+            pData->nGameState = STATE_WIN;
+            
+            memset((unsigned short*) ADDR_ROOM_SBB, 0, SCREEN_BLOCK_SIZE);
+            clear_all_sprites();
+            clear_text();
+            text("YOU WIN!", 11, 4);
+            text("THANKS FOR PLAYING", 6, 7);
+            text("SOURCE AVAILABLE AT:", 5, 13);
+            text("GITHUB.COM/MHOLTKAMP/ASCENT",2, 15);
+        }
+
         
         // Exit function
         return;
