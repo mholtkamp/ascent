@@ -39,7 +39,7 @@ void enemy_initialize(Enemy* pEnemy,
     case ENEMY_TYPE_CATERPILLAR:
         pEnemy->rect.fWidth = int_to_fixed(14);
         pEnemy->rect.fHeight = int_to_fixed(14);
-        pEnemy->nHealth = 5;
+        pEnemy->nHealth = 8;
         pEnemy->nDamage = 1;
         pEnemy->update = &enemy_update_caterpillar;
         pEnemy->nSpriteOffsetX = 1;
@@ -55,7 +55,7 @@ void enemy_initialize(Enemy* pEnemy,
     case ENEMY_TYPE_PIXIE:
         pEnemy->rect.fWidth  = int_to_fixed(8);
         pEnemy->rect.fHeight = int_to_fixed(8);
-        pEnemy->nHealth = 8;
+        pEnemy->nHealth = 5;
         pEnemy->nDamage = 1;
         pEnemy->update = &enemy_update_pixie;
         pEnemy->nSpriteOffsetX = 4;

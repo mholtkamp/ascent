@@ -1,3 +1,4 @@
+// This sprite was made by my friend Dustin LaMontagne
 
 //{{BLOCK(kingman)
 

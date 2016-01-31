@@ -23,5 +23,7 @@ void _game_load_room(GameData* pData);
 
 void _game_clear_room(GameData* pData);
 
+void _game_update_sprites(GameData* pData);
+
 
 #endif

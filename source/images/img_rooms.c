@@ -475,6 +475,12 @@ const unsigned short* arRoomTable[NUM_ROOM_MAPS + 1] =
 // Enemy maps
 const short arNullEM[] = {-1};
 
+const short arRoom2EM1[] =
+{
+    ENEMY_TYPE_PIXIE, 110, 70,
+    -1
+};
+
 const short arRoom3EM1[] = 
 {
     ENEMY_TYPE_PIXIE, 30, 30,
@@ -486,23 +492,35 @@ const short arRoom3EM1[] =
 
 const short arRoom4EM1[] = 
 {
-    ENEMY_TYPE_CATERPILLAR, 120, 60,
-    ENEMY_TYPE_CATERPILLAR, 120, 100,
+    ENEMY_TYPE_CATERPILLAR, 110, 60,
+    ENEMY_TYPE_CATERPILLAR, 110, 100,
     ENEMY_TYPE_CATERPILLAR, 160, 60,
     //ENEMY_TYPE_CATERPILLAR, 160, 100,
     -1
 };
 
+const short arRoom5EM1[] = 
+{
+    ENEMY_TYPE_CATERPILLAR, 110, 70,
+    -1
+};
 
+const short arRoom6EM1[] = 
+{
+    ENEMY_TYPE_PIXIE, 110, 70,
+    ENEMY_TYPE_CATERPILLAR, 50, 130,
+    ENEMY_TYPE_CATERPILLAR, 200, 30,
+    -1
+};
 
 const short* arEnemyMaps[NUM_ROOM_MAPS + 1][MAX_ENEMY_MAPS_PER_ROOM] = 
 {
     {arNullEM, arNullEM, arNullEM}, // No room
     {arNullEM, arNullEM, arNullEM}, // Room 1
-    {arNullEM, arNullEM, arNullEM}, // Room 2
+    {arRoom2EM1, arRoom2EM1, arRoom2EM1}, // Room 2
     {arRoom3EM1, arRoom3EM1, arRoom3EM1}, // Room 3
     {arRoom4EM1, arRoom4EM1, arRoom4EM1}, // Room 4
-    {arNullEM, arNullEM, arNullEM}, // Room 5
-    {arNullEM, arNullEM, arNullEM}, // Room 6
+    {arRoom5EM1, arRoom5EM1, arRoom5EM1}, // Room 5
+    {arRoom6EM1, arRoom6EM1, arRoom6EM1}, // Room 6
      
 };

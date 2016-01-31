@@ -75,10 +75,11 @@ void game_initialize(GameData* pData)
 
 void game_update(GameData* pData)
 {
-    static int s_nADown = 0;
     int i = 0;
-    Bullet* pBullets = pData->arBullets;
-    Enemy* pEnemies = pData->arEnemies;
+    Bullet* pBullets    = pData->arBullets;
+    Enemy* pEnemies     = pData->arEnemies;
+    char cRoomNum       = pData->arFloor[pData->nRoomX][pData->nRoomY];
+    int  nEnemiesAlive  = 0;
     
      game_draw_hud(pData);
      
@@ -109,17 +110,18 @@ void game_update(GameData* pData)
         if (pEnemies[i].nAlive)
         {
             pEnemies[i].update(&(pEnemies[i]), pData);
+            nEnemiesAlive = 1;
         }
     }
     
-    if (key_down(KEY_B) && !s_nADown)
+    // Check for room clear
+    if (nEnemiesAlive == 0 &&
+        !(cRoomNum & ROOM_CLEARED_FLAG))
     {
+        // No more enemies alive and the room number
+        // hasn't been flagged with the clear flag.
+        // So clear the room
         _game_clear_room(pData);
-        s_nADown = 1;
-    }
-    else if (!key_down(KEY_B))
-    {
-        s_nADown = 0;
     }
     
     // Check if hero is standing on doorway
@@ -184,7 +186,7 @@ void game_draw_hud(GameData* pData)
     {
         if (i <= pHero->nHealth)
         {
-            // Draw heart
+            // Draw heart (shift by 12 is to set tile bank number in screen entry.
             pMap[0 + i] = (DROP_PALETTE_BANK << 12) | arDropTileIndices[DROP_TYPE_HEART];
         }
         else
@@ -519,32 +521,35 @@ void _game_load_room(GameData* pData)
     load_map(ROOM_SBB, // SBB 31
              arRoomTable[nRoomNumber & (~ROOM_CLEARED_FLAG)]);
              
-    // Load enemy map
-    nRand = random() % 3;
-    pEnemyMap = arEnemyMaps[nRoomNumber & (~ROOM_CLEARED_FLAG)][nRand];
-    
-    i = 0;
-    
-    while(1)
+    // Load enemy map if room not cleared
+    if (!(nRoomNumber & ROOM_CLEARED_FLAG))
     {
-        if (pEnemyMap[i*3] == -1)
-        {
-            // No more enemies to load
-            break;
-        }
-        else
-        {
-            // Initialize the enemy
-            enemy_initialize(&(pData->arEnemies[i]),
-                             pEnemyMap[i*3],
-                             i);
-            
-            // And then set the position
-            pData->arEnemies[i].rect.fX = int_to_fixed((int) pEnemyMap[i*3+1]);
-            pData->arEnemies[i].rect.fY = int_to_fixed((int) pEnemyMap[i*3+2]);
-        }
+        nRand = random() % 3;
+        pEnemyMap = arEnemyMaps[nRoomNumber & (~ROOM_CLEARED_FLAG)][nRand];
         
-        i++;
+        i = 0;
+        
+        while(1)
+        {
+            if (pEnemyMap[i*3] == -1)
+            {
+                // No more enemies to load
+                break;
+            }
+            else
+            {
+                // Initialize the enemy
+                enemy_initialize(&(pData->arEnemies[i]),
+                                 pEnemyMap[i*3],
+                                 i);
+                
+                // And then set the position
+                pData->arEnemies[i].rect.fX = int_to_fixed((int) pEnemyMap[i*3+1]);
+                pData->arEnemies[i].rect.fY = int_to_fixed((int) pEnemyMap[i*3+2]);
+            }
+            
+            i++;
+        }
     }
     
     unsigned short* pMap = (unsigned short*) ADDR_ROOM_SBB;
@@ -587,9 +592,17 @@ void _game_load_room(GameData* pData)
         pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = WALL_TILE_INDEX;
     }
     
-    // Add a delay before game updates
-    //pData->nDelay = 5;
-    //_game_update_sprites();
+    // Open doorways if room is already cleared
+    if (nRoomNumber & ROOM_CLEARED_FLAG)
+    {
+        _game_clear_room(pData);
+    }
+    else
+    {
+        // Set a delay if room is not cleared
+        pData->nDelay = 30;
+        _game_update_sprites(pData);
+     }
 }
 
 void _game_clear_room(GameData* pData)
@@ -656,5 +669,30 @@ void _game_clear_room(GameData* pData)
         pMap[16 + 19 * SCREEN_BLOCK_MAP_WIDTH] = nTileIndex;
     }
     
+    // Flag the room as cleared, so that enemies/items/doors
+    // do not spawn upon re-entering.
     pData->arFloor[pData->nRoomX][pData->nRoomY] |= ROOM_CLEARED_FLAG;
+}
+
+void _game_update_sprites(GameData* pData)
+{
+    int i = 0;
+    
+    // Update sprite location living enemies
+    for (i = 0; i < MAX_ENEMIES; i++)
+    {
+        if (pData->arEnemies[i].nAlive != 0)
+        {
+            sprite_set_position(pData->arEnemies[i].nOBJ,
+                                fixed_to_int(pData->arEnemies[i].rect.fX),
+                                fixed_to_int(pData->arEnemies[i].rect.fY));
+        }
+    }
+    
+    // Update sprite of hero
+    sprite_set_position(HERO_SPRITE_INDEX,
+                        fixed_to_int(pData->hero.rect.fX),
+                        fixed_to_int(pData->hero.rect.fY));
+    
+    
 }
